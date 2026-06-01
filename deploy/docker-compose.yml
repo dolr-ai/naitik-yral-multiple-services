@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  naitik-yral-multiple-services:
+    image: ${APP_IMAGE:-ghcr.io/dolr-ai/naitik-yral-multiple-services}:${IMAGE_TAG:-latest}
+    container_name: naitik-yral-multiple-services
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      - BIND_ADDRESS=0.0.0.0:6000 
+      - DRAGONFLY_REDIS_STORE_PASSWORD=${DRAGONFLY_REDIS_STORE_PASSWORD}
+      - DRAGONFLY_REDIS_STORE_HOSTS=${DRAGONFLY_REDIS_STORE_HOSTS}
+      - DRAGONFLY_REDIS_STORE_CA_CERT=${DRAGONFLY_REDIS_STORE_CA_CERT}
+      - DRAGONFLY_REDIS_STORE_CLIENT_CERT=${DRAGONFLY_REDIS_STORE_CLIENT_CERT}
+      - DRAGONFLY_REDIS_STORE_CLIENT_KEY=${DRAGONFLY_REDIS_STORE_CLIENT_KEY}
+    networks:
+      - proxy
+        
+networks:
+  proxy:
+    external: true
