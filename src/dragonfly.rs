@@ -1,3 +1,4 @@
+use crate::utils::error::Result;
 use futures::StreamExt;
 use redis::aio::MultiplexedConnection;
 use redis::sentinel::SentinelClient;
@@ -14,9 +15,6 @@ use tokio::sync::RwLock;
 
 pub const REDIS_SENTINEL_PORT: u16 = 26379;
 pub const SENTINEL_SERVICE_NAME: &str = "mymaster";
-
-pub const TEST_KEY_PREFIX: &str = "test";
-pub const YRAL_AUTH_REDIS_KEY_PREFIX: &str = "yral-auth";
 
 const SENTINEL_RECONNECT_DELAY: Duration = Duration::from_secs(1);
 
@@ -40,21 +38,21 @@ pub fn normalize_pem(pem: String) -> Vec<u8> {
     }
 }
 
-pub fn get_redis_store_ca_cert() -> Result<Vec<u8>, anyhow::Error> {
+pub fn get_redis_store_ca_cert() -> Result<Vec<u8>> {
     Ok(normalize_pem(
         std::env::var("DRAGONFLY_REDIS_STORE_CA_CERT")
             .expect("DRAGONFLY_REDIS_STORE_CA_CERT env var not set"),
     ))
 }
 
-pub fn get_redis_store_client_cert() -> Result<Vec<u8>, anyhow::Error> {
+pub fn get_redis_store_client_cert() -> Result<Vec<u8>> {
     Ok(normalize_pem(
         std::env::var("DRAGONFLY_REDIS_STORE_CLIENT_CERT")
             .expect("DRAGONFLY_REDIS_STORE_CLIENT_CERT env var not set"),
     ))
 }
 
-pub fn get_redis_store_client_key() -> Result<Vec<u8>, anyhow::Error> {
+pub fn get_redis_store_client_key() -> Result<Vec<u8>> {
     Ok(normalize_pem(
         std::env::var("DRAGONFLY_REDIS_STORE_CLIENT_KEY")
             .expect("DRAGONFLY_REDIS_STORE_CLIENT_KEY env var not set"),
@@ -217,10 +215,7 @@ pub struct SentinelConnectionManager {
 }
 
 impl SentinelConnectionManager {
-    pub fn new(
-        sentinel_client: SentinelClient,
-        master_name: String,
-    ) -> Result<Self, anyhow::Error> {
+    pub fn new(sentinel_client: SentinelClient, master_name: String) -> Result<Self> {
         Ok(Self {
             sentinel_client: Arc::new(RwLock::new(sentinel_client)),
             master_name,
@@ -420,7 +415,7 @@ pub async fn init_dragonfly_redis_store(
     ca_cert_bytes: Vec<u8>,
     client_cert_bytes: Vec<u8>,
     client_key_bytes: Vec<u8>,
-) -> Result<Arc<DragonflyPool>, anyhow::Error> {
+) -> Result<Arc<DragonflyPool>> {
     rustls::crypto::ring::default_provider()
         .install_default()
         .ok();

@@ -6,6 +6,7 @@ use axum::{
 };
 use ic_agent::export::PrincipalError;
 use jsonwebtoken::errors as jwt_errors;
+use redis::RedisError;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::{env::VarError, ops::Deref};
@@ -23,6 +24,9 @@ pub enum Error {
     #[error("failed to deserialize json {0}")]
     #[schema(value_type = SerdeJsonErrorDetail)]
     Deser(#[from] serde_json::Error),
+    #[error("{0}")]
+    #[schema(value_type = RedisErrorDetail)]
+    Redis(#[from] RedisError),
     #[error("jwt {0}")]
     #[schema(value_type = JwtErrorDetail)]
     Jwt(#[from] jsonwebtoken::errors::Error),
@@ -62,6 +66,10 @@ impl From<&Error> for ApiResult<()> {
                 log::warn!("deserialization error {e}");
                 ApiError::Deser
             }
+            Error::Redis(e) => {
+                log::warn!("redis error {e}");
+                ApiError::Redis
+            }
             Error::Jwt(_) => ApiError::Jwt,
             Error::AuthTokenMissing => ApiError::AuthTokenMissing,
             Error::AuthTokenInvalid => ApiError::AuthToken,
@@ -98,9 +106,11 @@ impl IntoResponse for Error {
 impl Error {
     pub fn status_code(&self) -> StatusCode {
         match self {
-            Error::IO(_) | Error::Config(_) | Error::Deser(_) | Error::Unknown(_) => {
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+            Error::IO(_)
+            | Error::Config(_)
+            | Error::Deser(_)
+            | Error::Redis(_)
+            | Error::Unknown(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::Jwt(_) | Error::AuthTokenInvalid | Error::AuthTokenMissing => {
                 StatusCode::UNAUTHORIZED
             }
@@ -373,4 +383,69 @@ pub struct OkWrapper<T: ToSchema> {
 #[allow(non_snake_case)]
 pub struct NullOk {
     Ok: (),
+}
+
+#[derive(Debug, ToSchema, Serialize)]
+pub struct RedisErrorDetail {
+    #[schema(example = "ResponseError")]
+    pub kind: RedisErrorKind,
+    #[schema(example = "Connection refused")]
+    pub detail: String,
+}
+
+#[derive(Debug, ToSchema, Serialize)]
+pub enum RedisErrorKind {
+    ResponseError,
+    ParseError,
+    AuthenticationFailed,
+    TypeError,
+    ExecAbortError,
+    BusyLoadingError,
+    NoScriptError,
+    InvalidClientConfig,
+    Moved,
+    Ask,
+    TryAgain,
+    ClusterDown,
+    CrossSlot,
+    MasterDown,
+    IoError,
+    ClientError,
+    ExtensionError,
+    ReadOnly,
+    MasterNameNotFoundBySentinel,
+    NoValidReplicasFoundBySentinel,
+    EmptySentinelList,
+    NotBusy,
+    ClusterConnectionNotFound,
+    Unknown,
+}
+
+impl From<redis::ErrorKind> for RedisErrorKind {
+    fn from(e: redis::ErrorKind) -> Self {
+        match e {
+            redis::ErrorKind::AuthenticationFailed => RedisErrorKind::AuthenticationFailed,
+            redis::ErrorKind::InvalidClientConfig => RedisErrorKind::InvalidClientConfig,
+            redis::ErrorKind::MasterNameNotFoundBySentinel => {
+                RedisErrorKind::MasterNameNotFoundBySentinel
+            }
+            redis::ErrorKind::NoValidReplicasFoundBySentinel => {
+                RedisErrorKind::NoValidReplicasFoundBySentinel
+            }
+            redis::ErrorKind::EmptySentinelList => RedisErrorKind::EmptySentinelList,
+            redis::ErrorKind::ClusterConnectionNotFound => {
+                RedisErrorKind::ClusterConnectionNotFound
+            }
+            _ => RedisErrorKind::Unknown,
+        }
+    }
+}
+
+impl From<RedisError> for RedisErrorDetail {
+    fn from(e: RedisError) -> Self {
+        Self {
+            kind: RedisErrorKind::from(e.kind()),
+            detail: e.to_string(),
+        }
+    }
 }
