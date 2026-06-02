@@ -1,5 +1,5 @@
 use axum::{
-    routing::{delete, get, post},
+    routing::{get, post},
     Router,
 };
 use naitik_yral_multiple_services::api::handlers::*;
@@ -51,8 +51,7 @@ async fn main_impl() -> Result<()> {
     // Build the application router with all routes defined here
     let app = Router::new()
         // API routes
-        // .route("/streaks/{user_prinicipal}", post(checkin))
-        // .route("/streaks/{user_prinicipal}", delete(delete_streak))
+        .route("/recsys/send-view-count", post(send_view_count_to_recsys))
         // OpenAPI/Swagger UI routes
         .route("/explorer/{*tail}", get(get_swagger))
         .route("/explorer/", get(get_swagger_root))

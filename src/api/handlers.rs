@@ -1,6 +1,6 @@
 use crate::state::AppState;
-use crate::types::*;
-use crate::utils::error::{Error, Result, NullOk};
+use crate::utils::error::{Error, NullOk, Result};
+use crate::utils::recsys_client::get_view_counts_for_videos;
 use crate::{
     types::ApiResult,
     utils::error::{ErrorWrapper, OkWrapper},
@@ -11,12 +11,10 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use candid::Principal;
-use serde_json::Value;
 use std::sync::Arc;
 
 #[utoipa::path(
-    delete,
+    post,
     path = "/recsys/send-view-count",
     request_body = Value,
     responses(
@@ -32,7 +30,7 @@ use std::sync::Arc;
 pub async fn send_view_count_to_recsys(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
-    Json(req): Json<Value>,
+    Json(req): Json<Vec<String>>,
 ) -> Result<Json<ApiResult<()>>> {
     let token = headers
         .get("Authorization")
@@ -44,10 +42,14 @@ pub async fn send_view_count_to_recsys(
     // Verify JWT token
     crate::auth::verify_token(token, &state.jwt_details)?;
 
-    // Send data
+    // Get view counts for the requested video IDs and send to recsys-system
+    let view_counts = get_view_counts_for_videos(&state.dragonfly_redis_store, &req).await?;
+    state
+        .recsys_client
+        .send_bulk_view_count_to_recsys(view_counts);
+
     Ok(Json(Ok(())))
 }
-
 
 #[utoipa::path(
     get,

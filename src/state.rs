@@ -12,6 +12,7 @@ pub static IC_AGENT_URL: &str = "https://ic0.app";
 pub struct AppState {
     pub dragonfly_redis_store: Arc<DragonflyPool>,
     pub jwt_details: crate::auth::JwtDetails,
+    pub recsys_client: crate::utils::recsys_client::RecsysClient,
 }
 
 impl AppState {
@@ -28,6 +29,7 @@ impl AppState {
             )
             .await?,
             jwt_details: crate::auth::init_jwt(app_config)?,
+            recsys_client: crate::utils::recsys_client::RecsysClient::new(),
         })
     }
 }

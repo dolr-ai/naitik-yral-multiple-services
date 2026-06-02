@@ -8,7 +8,6 @@ pub mod state;
 pub mod types;
 pub mod utils;
 
-use crate::types::*;
 use axum::{
     extract::Path,
     http::StatusCode,
@@ -42,24 +41,19 @@ impl Modify for BearerAuth {
 #[openapi(
     paths(
         api::handlers::healthz,
-        // api::handlers::checkin,
-        // api::handlers::delete_streak
+        api::handlers::send_view_count_to_recsys,
     ),
     components(
-        schemas(
-            
-        )
+        schemas()
     ),
     modifiers(&BearerAuth),
     tags(
         (name = "Health", description = "Health check"),
-        (name = "Checkin", description = "Checkin the streak for logged in user"),
-        (name = "Delete Streak", description = "Delete a streak for logged in user")
     ),
     info(
-        title = "Daily Streaks API",
+        title = "YRAL multiple services API",
         version = "1.0.0",
-        description = "API for handling daily streaks for users",
+        description = "API for YRAL multiple services",
         contact(
             name = "YRAL Team",
             url = "https://yral.com"

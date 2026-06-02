@@ -7,3 +7,6 @@ pub static CLAIMS: Lazy<Claims> = Lazy::new(|| Claims {
     company: "gobazzinga".to_string(),
     exp: 317125598072, // TODO: To be changed later when expiring tokens periodically
 });
+
+pub const RECSYS_ENDPOINT: &str =
+    "https://recsys-influencer-feed.ansuman.yral.com/api/v1/internal/feed-recsys/view-counts";
