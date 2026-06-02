@@ -1,5 +1,3 @@
-use crate::auth::init_jwt;
-use crate::auth::JwtDetails;
 use crate::config::AppConfig;
 use crate::dragonfly::{
     get_redis_store_ca_cert, get_redis_store_client_cert, get_redis_store_client_key,
@@ -13,7 +11,7 @@ pub static IC_AGENT_URL: &str = "https://ic0.app";
 #[derive(Clone)]
 pub struct AppState {
     pub dragonfly_redis_store: Arc<DragonflyPool>,
-    pub jwt_details: JwtDetails,
+    pub jwt_details: crate::auth::JwtDetails,
 }
 
 impl AppState {
@@ -29,7 +27,7 @@ impl AppState {
                 redis_store_client_key_bytes,
             )
             .await?,
-            jwt_details: init_jwt(app_config)?,
+            jwt_details: crate::auth::init_jwt(app_config)?,
         })
     }
 }

@@ -94,6 +94,7 @@ jobs:
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CLIENT_KEY value | DRAGONFLY_REDIS_STORE_CLIENT_KEY ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_HOSTS value | DRAGONFLY_REDIS_STORE_HOSTS ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_PASSWORD value | DRAGONFLY_REDIS_STORE_PASSWORD ;
+            secret/data/naitik-yral-multiple-services/OFFCHAIN_REQUEST_VERIFY_PUBLIC_KEY value | JWT_PUBLIC_KEY ;
             secret/data/naitik-yral-multiple-services/COOLIFY_TOKEN value | COOLIFY_TOKEN ;
             secret/data/naitik-yral-multiple-services/COOLIFY_PROJECT_UUID value | COOLIFY_PROJECT_UUID ;
             secret/data/naitik-yral-multiple-services/COOLIFY_SERVER_UUID value | COOLIFY_SERVER_UUID ;
@@ -152,11 +153,12 @@ jobs:
       - name: Push Environment Variables
         env:
           # Secrets from vault
-          DRAGONFLY_REDIS_STORE_CA_CERT: ${{ secrets.DRAGONFLY_REDIS_STORE_CA_CERT }}
-          DRAGONFLY_REDIS_STORE_CLIENT_CERT: ${{ secrets.DRAGONFLY_REDIS_STORE_CLIENT_CERT }}
-          DRAGONFLY_REDIS_STORE_CLIENT_KEY: ${{ secrets.DRAGONFLY_REDIS_STORE_CLIENT_KEY }}
-          DRAGONFLY_REDIS_STORE_HOSTS: ${{ secrets.DRAGONFLY_REDIS_STORE_HOSTS }}
-          DRAGONFLY_REDIS_STORE_PASSWORD: ${{ secrets.DRAGONFLY_REDIS_STORE_PASSWORD }}
+          DRAGONFLY_REDIS_STORE_CA_CERT: ${{ env.DRAGONFLY_REDIS_STORE_CA_CERT }}
+          DRAGONFLY_REDIS_STORE_CLIENT_CERT: ${{ env.DRAGONFLY_REDIS_STORE_CLIENT_CERT }}
+          DRAGONFLY_REDIS_STORE_CLIENT_KEY: ${{ env.DRAGONFLY_REDIS_STORE_CLIENT_KEY }}
+          DRAGONFLY_REDIS_STORE_HOSTS: ${{ env.DRAGONFLY_REDIS_STORE_HOSTS }}
+          DRAGONFLY_REDIS_STORE_PASSWORD: ${{ env.DRAGONFLY_REDIS_STORE_PASSWORD }}
+          JWT_PUBLIC_KEY: ${{ env.JWT_PUBLIC_KEY }}
         run: |
           APP_UUID="${{ steps.coolify_app.outputs.app_uuid }}"
           flatten() { echo "$1" | tr -d '\n\r'; }
@@ -173,7 +175,8 @@ jobs:
                 {"key": "DRAGONFLY_REDIS_STORE_CLIENT_CERT", "value": $dragonfly_redis_store_client_cert, "is_multiline": true},
                 {"key": "DRAGONFLY_REDIS_STORE_CLIENT_KEY", "value": $dragonfly_redis_store_client_key, "is_multiline": true},
                 {"key": "DRAGONFLY_REDIS_STORE_HOSTS", "value": $dragonfly_redis_store_hosts, "is_literal": true},
-                {"key": "DRAGONFLY_REDIS_STORE_PASSWORD", "value": $dragonfly_redis_store_password, "is_literal": true}
+                {"key": "DRAGONFLY_REDIS_STORE_PASSWORD", "value": $dragonfly_redis_store_password, "is_literal": true},
+                {"key": "JWT_PUBLIC_KEY", "value": $JWT_PUBLIC_KEY, "is_multiline": true}
               ]
             }')
 
