@@ -9,10 +9,28 @@ on:
         type: boolean
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Import Secrets from Vault
+        uses: hashicorp/vault-action@v3
+        with:
+          url: https://vault.yral.com
+          method: jwt
+          role: naitik-yral-multiple-services-role
+          jwtGithubAudience: "https://github.com/dolr-ai"
+          secrets: |
+            secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CA_CERT value | DRAGONFLY_REDIS_STORE_CA_CERT ;
+            secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CLIENT_CERT value | DRAGONFLY_REDIS_STORE_CLIENT_CERT ;
+            secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CLIENT_KEY value | DRAGONFLY_REDIS_STORE_CLIENT_KEY ;
+            secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_HOSTS value | DRAGONFLY_REDIS_STORE_HOSTS ;
+            secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_PASSWORD value | DRAGONFLY_REDIS_STORE_PASSWORD ;
+
       - name: Checkout repo
         uses: actions/checkout@v3
 
