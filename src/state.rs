@@ -3,7 +3,7 @@ use crate::dragonfly::{
     get_redis_store_ca_cert, get_redis_store_client_cert, get_redis_store_client_key,
     init_dragonfly_redis_store, DragonflyPool,
 };
-use crate::utils::error::{Error, Result};
+use crate::utils::error::Result;
 use std::sync::Arc;
 
 pub static IC_AGENT_URL: &str = "https://ic0.app";

@@ -14,6 +14,12 @@ pub struct RecsysClient {
     pub url: Url,
 }
 
+impl Default for RecsysClient {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RecsysClient {
     pub fn new() -> Self {
         let client = Client::new();

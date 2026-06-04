@@ -1,16 +1,8 @@
 use crate::state::AppState;
 use crate::utils::error::{Error, NullOk, Result};
 use crate::utils::recsys_client::get_view_counts_for_videos;
-use crate::{
-    types::ApiResult,
-    utils::error::{ErrorWrapper, OkWrapper},
-};
-use axum::{
-    extract::{Path, State},
-    http::HeaderMap,
-    response::IntoResponse,
-    Json,
-};
+use crate::{types::ApiResult, utils::error::ErrorWrapper};
+use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use std::sync::Arc;
 
 #[utoipa::path(
