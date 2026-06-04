@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use crate::utils::error::{Error, Result};
+use crate::utils::error::Result;
 use crate::{consts::RECSYS_ENDPOINT, dragonfly::DragonflyPool};
 use hmac::{Hmac, Mac};
 use redis::AsyncCommands;
