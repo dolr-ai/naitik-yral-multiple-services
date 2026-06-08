@@ -986,7 +986,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2032,6 +2032,7 @@ dependencies = [
  "utoipa",
  "utoipa-swagger-ui",
  "yral-identity",
+ "yral-metadata-client",
  "yral-metadata-types",
  "yral-metrics",
  "yral-types",
@@ -2065,7 +2066,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2966,7 +2967,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3506,7 +3507,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3535,7 +3536,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "psm",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4347,7 +4348,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -4708,15 +4709,28 @@ version = "0.1.0"
 source = "git+https://github.com/dolr-ai/yral-common.git?branch=master#395030df8b5038775e1a4a3d2af14ca7e4e2ee9b"
 dependencies = [
  "candid",
+ "ic-agent",
  "serde",
  "thiserror 2.0.18",
  "web-time",
 ]
 
 [[package]]
+name = "yral-metadata-client"
+version = "0.1.0"
+source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=master#c8db8ef3163646ba033808c1d8abb7586203bd43"
+dependencies = [
+ "ic-agent",
+ "reqwest",
+ "thiserror 1.0.69",
+ "yral-identity",
+ "yral-metadata-types",
+]
+
+[[package]]
 name = "yral-metadata-types"
 version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-metadata?branch=master#c8db8ef3163646ba033808c1d8abb7586203bd43"
+source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=master#c8db8ef3163646ba033808c1d8abb7586203bd43"
 dependencies = [
  "candid",
  "chrono",

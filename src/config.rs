@@ -8,6 +8,7 @@ use std::net::SocketAddr;
 pub struct AppConfig {
     pub bind_address: SocketAddr,
     pub jwt_public_key: String,
+    pub yral_metadata_token: String,
 }
 
 impl AppConfig {

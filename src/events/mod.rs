@@ -5,7 +5,8 @@ use utoipa::ToSchema;
 use crate::events::types::AnalyticsEvent;
 pub use yral_types::delegated_identity::DelegatedIdentityWire;
 
-pub mod events;
+pub mod event;
+pub mod push_notification;
 pub mod types;
 
 #[derive(Serialize, Deserialize, Clone, ToSchema)]

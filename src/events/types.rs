@@ -1,15 +1,17 @@
 use candid::Principal;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
-use serde_json::Value;
+use serde_json::{json, Value};
 use utoipa::ToSchema;
-// use yral_metadata_types::{
-//     AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, NotificationPayload,
-//     SendNotificationReq, WebpushConfig, WebpushFcmOptions,
-// };
+use yral_metadata_types::{
+    AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, NotificationPayload,
+    SendNotificationReq, WebpushConfig, WebpushFcmOptions,
+};
 use yral_metrics::metrics::{
     like_video::LikeVideo, sealed_metric::SealedMetric,
     video_duration_watched::VideoDurationWatched, video_watched::VideoWatched,
 };
+
+use crate::state::AppState;
 
 pub fn string_or_number<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
@@ -822,439 +824,439 @@ where
 /// # Errors
 /// * Returns `serde_json::Error` if the event name is unknown OR the payload cannot
 ///   be deserialized into the expected structure.
-// impl EventPayload {
-//     // TODO: canister_id is used
+impl EventPayload {
+    // TODO: canister_id is used
 
-//     pub async fn send_notification(&self, app_state: &AppState) {
-//         match self {
-//             EventPayload::VideoUploadSuccessful(payload) => {
-//                 let title = "Video Uploaded";
-//                 let body = "Your video has been uploaded successfully";
-//                 let publisher_user_id = payload.publisher_user_id;
-//                 let canister_id = match app_state
-//                     .get_individual_canister_by_user_principal(publisher_user_id)
-//                     .await
-//                 {
-//                     Ok(id) => id,
-//                     Err(e) => {
-//                         log::error!(
-//                             "Failed to get canister for user {}: {}",
-//                             publisher_user_id,
-//                             e
-//                         );
-//                         return;
-//                     }
-//                 };
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.to_string()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "payload": serde_json::to_string(self).unwrap()
-//                     })),
-//                     android: Some(AndroidConfig {
-//                         notification: Some(AndroidNotification {
-//                             icon: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some(format!(
-//                                 "https://yral.com/hot-or-not/{}/{}",
-//                                 payload.canister_id.to_text(),
-//                                 payload.post_id
-//                             )),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: Some(ApnsConfig {
-//                         fcm_options: Some(ApnsFcmOptions {
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         payload: Some(json!({
-//                             "aps": {
-//                                 "alert": {
-//                                     "title": title.to_string(),
-//                                     "body": body.to_string(),
-//                                 },
-//                                 "sound": "default",
-//                             },
-//                             "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
-//                         })),
-//                         ..Default::default()
-//                     }),
-//                     ..Default::default()
-//                 };
+    pub async fn send_notification(&self, app_state: &AppState) {
+        match self {
+            EventPayload::VideoUploadSuccessful(payload) => {
+                let title = "Video Uploaded";
+                let body = "Your video has been uploaded successfully";
+                let publisher_user_id = payload.publisher_user_id;
+                let canister_id = match app_state
+                    .get_individual_canister_by_user_principal(publisher_user_id)
+                    .await
+                {
+                    Ok(id) => id,
+                    Err(e) => {
+                        log::error!(
+                            "Failed to get canister for user {}: {}",
+                            publisher_user_id,
+                            e
+                        );
+                        return;
+                    }
+                };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "payload": serde_json::to_string(self).unwrap()
+                    })),
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some(format!(
+                                "https://yral.com/hot-or-not/{}/{}",
+                                payload.canister_id.to_text(),
+                                payload.post_id
+                            )),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body.to_string(),
+                                },
+                                "sound": "default",
+                            },
+                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, payload.publisher_user_id)
-//                     .await;
-//             }
-//             EventPayload::LikeVideo(payload) => {
-//                 let title = "Video Liked";
-//                 let body = format!("{} liked your video", payload.user_id.to_text());
-//                 let publisher_user_id = payload.publisher_user_id;
-//                 let canister_id = match app_state
-//                     .get_individual_canister_by_user_principal(publisher_user_id)
-//                     .await
-//                 {
-//                     Ok(id) => id,
-//                     Err(e) => {
-//                         log::error!(
-//                             "Failed to get canister for user {}: {}",
-//                             publisher_user_id,
-//                             e
-//                         );
-//                         return;
-//                     }
-//                 };
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.to_string()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "payload": serde_json::to_string(self).unwrap()
-//                     })),
-//                     android: Some(AndroidConfig {
-//                         notification: Some(AndroidNotification {
-//                             icon: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some(format!(
-//                                 "https://yral.com/hot-or-not/{}/{}",
-//                                 canister_id.to_text(),
-//                                 payload.post_id
-//                             )),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: Some(ApnsConfig {
-//                         fcm_options: Some(ApnsFcmOptions {
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         payload: Some(json!({
-//                             "aps": {
-//                                 "alert": {
-//                                     "title": title.to_string(),
-//                                     "body": body.to_string(),
-//                                 },
-//                                 "sound": "default",
-//                             },
-//                             "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
-//                         })),
-//                         ..Default::default()
-//                     }),
-//                     ..Default::default()
-//                 };
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.publisher_user_id)
+                    .await;
+            }
+            EventPayload::LikeVideo(payload) => {
+                let title = "Video Liked";
+                let body = format!("{} liked your video", payload.user_id.to_text());
+                let publisher_user_id = payload.publisher_user_id;
+                let canister_id = match app_state
+                    .get_individual_canister_by_user_principal(publisher_user_id)
+                    .await
+                {
+                    Ok(id) => id,
+                    Err(e) => {
+                        log::error!(
+                            "Failed to get canister for user {}: {}",
+                            publisher_user_id,
+                            e
+                        );
+                        return;
+                    }
+                };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "payload": serde_json::to_string(self).unwrap()
+                    })),
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some(format!(
+                                "https://yral.com/hot-or-not/{}/{}",
+                                canister_id.to_text(),
+                                payload.post_id
+                            )),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body.to_string(),
+                                },
+                                "sound": "default",
+                            },
+                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, payload.publisher_user_id)
-//                     .await;
-//             }
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.publisher_user_id)
+                    .await;
+            }
 
-//             EventPayload::TournamentStarted(payload) => {
-//                 // Tournament start notifications would be sent to all users
-//                 // This should be handled by a batch process, not individual notifications
-//                 // For now, log the event
-//                 log::info!(
-//                     "Tournament started: {} with prize pool {} {}",
-//                     payload.tournament_id,
-//                     payload.prize_pool,
-//                     payload.prize_token
-//                 );
-//             }
+            EventPayload::TournamentStarted(payload) => {
+                // Tournament start notifications would be sent to all users
+                // This should be handled by a batch process, not individual notifications
+                // For now, log the event
+                log::info!(
+                    "Tournament started: {} with prize pool {} {}",
+                    payload.tournament_id,
+                    payload.prize_pool,
+                    payload.prize_token
+                );
+            }
 
-//             EventPayload::TournamentEndedWinner(payload) => {
-//                 let title = format!("Congratulations! You won rank #{}!", payload.rank);
-//                 let body = format!(
-//                     "You ranked #{}! You’ve won {} {} in the tournament. Check the leaderboard now!",
-//                     payload.rank, payload.prize_amount, payload.prize_token
-//                 );
+            EventPayload::TournamentEndedWinner(payload) => {
+                let title = format!("Congratulations! You won rank #{}!", payload.rank);
+                let body = format!(
+                    "You ranked #{}! You’ve won {} {} in the tournament. Check the leaderboard now!",
+                    payload.rank, payload.prize_amount, payload.prize_token
+                );
 
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.to_string()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "payload": serde_json::to_string(self).unwrap()
-//                     })),
-//                     android: None,
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some(format!(
-//                                 "https://yral.com/leaderboard/results/{}",
-//                                 payload.tournament_id
-//                             )),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: None,
-//                     ..Default::default()
-//                 };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "payload": serde_json::to_string(self).unwrap()
+                    })),
+                    android: None,
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some(format!(
+                                "https://yral.com/leaderboard/results/{}",
+                                payload.tournament_id
+                            )),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: None,
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, payload.user_id)
-//                     .await;
-//             }
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.user_id)
+                    .await;
+            }
 
-//             EventPayload::FollowUser(payload) => {
-//                 let title = "New Follower";
-//                 let body = match &payload.follower_username {
-//                     Some(username) => format!("{} started following you", username),
-//                     None => "Someone started following you".to_string(),
-//                 };
-//                 let followee_principal_id = payload.followee_principal_id;
+            EventPayload::FollowUser(payload) => {
+                let title = "New Follower";
+                let body = match &payload.follower_username {
+                    Some(username) => format!("{} started following you", username),
+                    None => "Someone started following you".to_string(),
+                };
+                let followee_principal_id = payload.followee_principal_id;
 
-//                 let profile_url = format!(
-//                     "https://yral.com/profile/{}/posts",
-//                     payload.follower_principal_id.to_text()
-//                 );
+                let profile_url = format!(
+                    "https://yral.com/profile/{}/posts",
+                    payload.follower_principal_id.to_text()
+                );
 
-//                 log::debug!(
-//                     "Sending follow notification to user {} from {}",
-//                     followee_principal_id,
-//                     payload
-//                         .follower_username
-//                         .as_deref()
-//                         .unwrap_or(&payload.follower_principal_id.to_text())
-//                 );
+                log::debug!(
+                    "Sending follow notification to user {} from {}",
+                    followee_principal_id,
+                    payload
+                        .follower_username
+                        .as_deref()
+                        .unwrap_or(&payload.follower_principal_id.to_text())
+                );
 
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.clone()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "payload": serde_json::to_string(self).unwrap()
-//                     })),
-//                     android: Some(AndroidConfig {
-//                         notification: Some(AndroidNotification {
-//                             icon: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some(profile_url.clone()),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: Some(ApnsConfig {
-//                         fcm_options: Some(ApnsFcmOptions {
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         payload: Some(json!({
-//                             "aps": {
-//                                 "alert": {
-//                                     "title": title.to_string(),
-//                                     "body": body,
-//                                 },
-//                                 "sound": "default",
-//                             },
-//                             "url": profile_url
-//                         })),
-//                         ..Default::default()
-//                     }),
-//                     ..Default::default()
-//                 };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.clone()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "payload": serde_json::to_string(self).unwrap()
+                    })),
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some(profile_url.clone()),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body,
+                                },
+                                "sound": "default",
+                            },
+                            "url": profile_url
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, followee_principal_id)
-//                     .await;
-//             }
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, followee_principal_id)
+                    .await;
+            }
 
-//             EventPayload::VideoApproved(payload) => {
-//                 let title = "Video Approved";
-//                 let body = "Your video has been approved and is now live!";
+            EventPayload::VideoApproved(payload) => {
+                let title = "Video Approved";
+                let body = "Your video has been approved and is now live!";
 
-//                 let video_url = payload
-//                     .canister_id
-//                     .as_ref()
-//                     .map(|cid| format!("https://yral.com/hot-or-not/{}/{}", cid, payload.post_id))
-//                     .unwrap_or_else(|| "https://yral.com".to_string());
+                let video_url = payload
+                    .canister_id
+                    .as_ref()
+                    .map(|cid| format!("https://yral.com/hot-or-not/{}/{}", cid, payload.post_id))
+                    .unwrap_or_else(|| "https://yral.com".to_string());
 
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.to_string()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "type": "video_approved",
-//                         "video_id": payload.video_id,
-//                         "post_id": payload.post_id
-//                     })),
-//                     android: Some(AndroidConfig {
-//                         notification: Some(AndroidNotification {
-//                             icon: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some(video_url.clone()),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: Some(ApnsConfig {
-//                         fcm_options: Some(ApnsFcmOptions {
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         payload: Some(json!({
-//                             "aps": {
-//                                 "alert": {
-//                                     "title": title.to_string(),
-//                                     "body": body.to_string(),
-//                                 },
-//                                 "sound": "default",
-//                             },
-//                             "url": video_url
-//                         })),
-//                         ..Default::default()
-//                     }),
-//                     ..Default::default()
-//                 };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "type": "video_approved",
+                        "video_id": payload.video_id,
+                        "post_id": payload.post_id
+                    })),
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some(video_url.clone()),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body.to_string(),
+                                },
+                                "sound": "default",
+                            },
+                            "url": video_url
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, payload.user_id)
-//                     .await;
-//             }
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.user_id)
+                    .await;
+            }
 
-//             EventPayload::VideoDisapproved(payload) => {
-//                 let title = "Video Not Approved";
-//                 let body = "Your video was not approved for publication.";
+            EventPayload::VideoDisapproved(payload) => {
+                let title = "Video Not Approved";
+                let body = "Your video was not approved for publication.";
 
-//                 let notif_payload = SendNotificationReq {
-//                     notification: Some(NotificationPayload {
-//                         title: Some(title.to_string()),
-//                         body: Some(body.to_string()),
-//                         image: Some(
-//                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                         ),
-//                     }),
-//                     data: Some(json!({
-//                         "type": "video_disapproved",
-//                         "video_id": payload.video_id,
-//                         "post_id": payload.post_id
-//                     })),
-//                     android: Some(AndroidConfig {
-//                         notification: Some(AndroidNotification {
-//                             icon: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     webpush: Some(WebpushConfig {
-//                         fcm_options: Some(WebpushFcmOptions {
-//                             link: Some("https://yral.com".to_string()),
-//                             ..Default::default()
-//                         }),
-//                         ..Default::default()
-//                     }),
-//                     apns: Some(ApnsConfig {
-//                         fcm_options: Some(ApnsFcmOptions {
-//                             image: Some(
-//                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
-//                             ),
-//                             ..Default::default()
-//                         }),
-//                         payload: Some(json!({
-//                             "aps": {
-//                                 "alert": {
-//                                     "title": title.to_string(),
-//                                     "body": body.to_string(),
-//                                 },
-//                                 "sound": "default",
-//                             },
-//                             "url": "https://yral.com"
-//                         })),
-//                         ..Default::default()
-//                     }),
-//                     ..Default::default()
-//                 };
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "type": "video_disapproved",
+                        "video_id": payload.video_id,
+                        "post_id": payload.post_id
+                    })),
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            link: Some("https://yral.com".to_string()),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body.to_string(),
+                                },
+                                "sound": "default",
+                            },
+                            "url": "https://yral.com"
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
 
-//                 app_state
-//                     .notification_client
-//                     .send_notification(notif_payload, payload.user_id)
-//                     .await;
-//             }
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.user_id)
+                    .await;
+            }
 
-//             _ => {}
-//         }
-//     }
-// }
+            _ => {}
+        }
+    }
+}
 
 pub fn deserialize_event_payload(
     event_name: &str,

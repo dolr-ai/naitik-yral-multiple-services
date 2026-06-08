@@ -42,6 +42,9 @@ yral-identity = { git = "https://github.com/dolr-ai/yral-common.git", default-fe
 yral-metadata-types = { git = "https://github.com/dolr-ai/yral-metadata", branch = "master", version = "0.1.0" }
 yral-metrics = { git = "https://github.com/dolr-ai/yral-common", branch = "master" }
 yral-types = { git = "https://github.com/dolr-ai/yral-common", branch = "master" }
+yral-metadata-client = { git = "https://github.com/dolr-ai/yral-metadata.git", branch = "master", features = [
+    "rustls-tls",
+], default-features = false }
 ic-agent = { version = "0.41.0", default-features = false, features = ["pem"]}
 sentry = { version = "0.37.0", default-features = false, features = [
     "rustls",
