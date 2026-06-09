@@ -5,8 +5,8 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::events::types::AnalyticsEvent;
-pub use yral_types::delegated_identity::DelegatedIdentityWire;
 use warehouse_events::warehouse_events_server::WarehouseEvents;
+pub use yral_types::delegated_identity::DelegatedIdentityWire;
 
 pub mod warehouse_events {
     tonic::include_proto!("warehouse_events");

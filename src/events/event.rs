@@ -1,6 +1,4 @@
-use crate::{
-    state::AppState, events::warehouse_events::WarehouseEvent,
-};
+use crate::{events::warehouse_events::WarehouseEvent, state::AppState};
 use axum::{extract::State, Json};
 // use http::header::CONTENT_TYPE;
 use log::{debug, error};
