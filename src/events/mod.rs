@@ -56,12 +56,12 @@ impl WarehouseEvents for WarehouseEventsService {
         let request = request.into_inner();
         let event = event::Event::new(request);
 
-        process_event_impl(event, shared_state, &mut video_view_counts)
-            .await
-            .map_err(|e| {
-                log::error!("Failed to process event grpc: {e}");
-                tonic::Status::internal("Failed to process event")
-            })?;
+        // process_event_impl(event, shared_state, &mut video_view_counts)
+        //     .await
+        //     .map_err(|e| {
+        //         log::error!("Failed to process event grpc: {e}");
+        //         tonic::Status::internal("Failed to process event")
+        //     })?;
 
         Ok(tonic::Response::new(Empty {}))
     }

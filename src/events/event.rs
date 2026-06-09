@@ -20,3 +20,9 @@ pub struct FlatEvent {
 pub struct Event {
     pub event: WarehouseEvent,
 }
+
+impl Event {
+    pub fn new(event: WarehouseEvent) -> Self {
+        Self { event }
+    }
+}
