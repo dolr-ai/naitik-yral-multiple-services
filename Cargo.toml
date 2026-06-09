@@ -20,6 +20,7 @@ axum = { version = "0.8.0", features = ["macros", "json"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["cors", "trace"] }
 tokio = { version = "1.36.0", features = ["full"] }
+tonic = { version = "0.13.0", features = ["tls-webpki-roots"] }
 sentry-tower = { version = "0.37.0", features = ["axum", "axum-matched-path"] }
 futures = "0.3.30"
 hmac = "0.12"
@@ -73,3 +74,11 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 async-trait = "0.1"
 testcontainers = "0.23"
 testcontainers-modules = { version = "0.11", features = ["postgres"] }
+
+[build-dependencies]
+tonic-build = "0.13.0"
+
+
+[[bin]]
+name = "naitik-yral-multiple-services"
+path = "src/main.rs"
