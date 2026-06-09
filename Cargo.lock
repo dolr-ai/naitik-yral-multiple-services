@@ -2057,6 +2057,7 @@ dependencies = [
  "jsonwebtoken",
  "log",
  "once_cell",
+ "prost",
  "redis",
  "reqwest",
  "rustls",
