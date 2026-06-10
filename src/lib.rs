@@ -43,6 +43,10 @@ impl Modify for BearerAuth {
     paths(
         api::handlers::healthz,
         api::handlers::send_view_count_to_recsys,
+        events::post_event,
+        events::post_event_v2,
+        events::handle_bulk_events,
+        events::handle_bulk_events_v2,
     ),
     components(
         schemas()
@@ -61,7 +65,7 @@ impl Modify for BearerAuth {
         )
     )
 )]
-struct ApiDoc;
+pub struct ApiDoc;
 
 pub async fn openapi_spec() -> impl IntoResponse {
     Json(ApiDoc::openapi())

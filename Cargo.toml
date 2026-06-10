@@ -28,6 +28,7 @@ hex = "0.4.3"
 sha2 = "0.10"
 tracing = "0.1"
 utoipa = { version = "5.3.1" }
+utoipa-axum = "0.2.0"
 utoipa-swagger-ui = { version = "9.0.2", features = ["reqwest", "axum"]}
 rustls = { version = "0.23.26" }
 jsonwebtoken = { version = "9.3.0", features = ["use_pem"] }

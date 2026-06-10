@@ -2,17 +2,19 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use naitik_yral_multiple_services::api::handlers::*;
-use naitik_yral_multiple_services::config::AppConfig;
+use naitik_yral_multiple_services::{ApiDoc, config::AppConfig};
 use naitik_yral_multiple_services::middleware::create_before_send;
 use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;
+use naitik_yral_multiple_services::{api::handlers::*, events};
 use naitik_yral_multiple_services::{get_swagger, get_swagger_root, openapi_spec};
 use sentry_tower::{NewSentryLayer, SentryHttpLayer};
+use utoipa::OpenApi;
 use std::env;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
+use utoipa_axum::router::OpenApiRouter;
 
 fn setup_sentry_subscriber() {
     use tracing_subscriber::layer::SubscriberExt;
@@ -40,6 +42,7 @@ fn setup_sentry_subscriber() {
 }
 
 async fn main_impl() -> Result<()> {
+
     let conf = AppConfig::load()?;
 
     let state = Arc::new(AppState::new(&conf).await?);
@@ -47,6 +50,12 @@ async fn main_impl() -> Result<()> {
     let sentry_tower_layer = ServiceBuilder::new()
         .layer(NewSentryLayer::new_from_top())
         .layer(SentryHttpLayer::with_transaction());
+
+    let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        .nest("/api/v1/events", events::events_router(state.clone()))
+        .nest("/api/v2/events", events::events_router_v2(state.clone()));
+
+    let (router, _) = router.split_for_parts();
 
     // Build the application router with all routes defined here
     let app = Router::new()
@@ -57,6 +66,7 @@ async fn main_impl() -> Result<()> {
         .route("/explorer/", get(get_swagger_root))
         .route("/api-doc/openapi.json", get(openapi_spec))
         .route("/healthz", get(healthz))
+        .fallback_service(router)
         .layer(CorsLayer::permissive())
         .layer(sentry_tower_layer)
         // Add shared state
