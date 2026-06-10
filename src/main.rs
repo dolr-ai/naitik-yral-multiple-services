@@ -2,18 +2,18 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use naitik_yral_multiple_services::{ApiDoc, config::AppConfig};
 use naitik_yral_multiple_services::middleware::create_before_send;
 use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;
 use naitik_yral_multiple_services::{api::handlers::*, events};
+use naitik_yral_multiple_services::{config::AppConfig, ApiDoc};
 use naitik_yral_multiple_services::{get_swagger, get_swagger_root, openapi_spec};
 use sentry_tower::{NewSentryLayer, SentryHttpLayer};
-use utoipa::OpenApi;
 use std::env;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
+use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
 
 fn setup_sentry_subscriber() {
@@ -42,7 +42,6 @@ fn setup_sentry_subscriber() {
 }
 
 async fn main_impl() -> Result<()> {
-
     let conf = AppConfig::load()?;
 
     let state = Arc::new(AppState::new(&conf).await?);

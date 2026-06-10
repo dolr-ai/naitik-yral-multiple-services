@@ -40,9 +40,9 @@ impl Event {
             Ok(p) => p,
             Err(e) => {
                 log::error!("Failed to parse video_duration_watched params for rewards: {e:?}");
-                return Err(Error::Unknown(
-                    format!("Failed to parse video_duration_watched params for rewards: {e:?}")
-                ));
+                return Err(Error::Unknown(format!(
+                    "Failed to parse video_duration_watched params for rewards: {e:?}"
+                )));
             }
         };
 

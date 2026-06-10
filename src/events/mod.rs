@@ -10,11 +10,7 @@ use utoipa_axum::routes;
 use yral_metrics::metrics::sealed_metric::SealedMetric;
 
 use crate::{
-    events::{
-        event::Event,
-        types::AnalyticsEvent,
-        warehouse_events::WarehouseEvent,
-    },
+    events::{event::Event, types::AnalyticsEvent, warehouse_events::WarehouseEvent},
     state::AppState,
 };
 pub use yral_types::delegated_identity::DelegatedIdentityWire;
