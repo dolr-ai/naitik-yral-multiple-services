@@ -17,6 +17,7 @@ pub use yral_types::delegated_identity::DelegatedIdentityWire;
 
 pub mod warehouse_events {
     tonic::include_proto!("warehouse_events");
+    #[allow(dead_code)]
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
         tonic::include_file_descriptor_set!("warehouse_events_descriptor");
 }
