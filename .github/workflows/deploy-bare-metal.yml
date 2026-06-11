@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
 
 permissions:
   id-token: write
@@ -130,7 +134,7 @@ jobs:
         run: |
           rsync -avz --delete \
             ./deploy/ \
-            naitik@${{matrix.server.host}}:/naitik-yral-multiple-services/
+            naitik@${{matrix.server.host}}:/home/naitik/naitik-yral-multiple-services/
 
       - name: Log in to GitHub Container Registry on server
         run: |
