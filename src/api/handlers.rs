@@ -31,9 +31,7 @@ pub async fn authenticated_health(
     // Verify JWT token
     crate::auth::verify_token(token, &state.jwt_details)?;
 
-    Ok(Json(Ok(
-        "Authenticated health check passed".to_string()
-    )))
+    Ok(Json(Ok("Authenticated health check passed".to_string())))
 }
 
 #[utoipa::path(
