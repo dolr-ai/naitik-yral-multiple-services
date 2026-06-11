@@ -3,9 +3,9 @@ use once_cell::sync::Lazy;
 use reqwest::Url;
 
 pub static CLAIMS: Lazy<Claims> = Lazy::new(|| Claims {
-    sub: "off-chain-agent".to_string(),
+    sub: "naitik-yral-multiple-services".to_string(),
     company: "gobazzinga".to_string(),
-    exp: 317125598072, // TODO: To be changed later when expiring tokens periodically
+    exp: 4934769340, // TODO: To be changed later when expiring tokens periodically
 });
 
 pub const RECSYS_ENDPOINT: &str =
