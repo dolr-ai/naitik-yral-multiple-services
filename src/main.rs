@@ -1,5 +1,5 @@
 use axum::{
-    routing::{get, post},
+    routing::get,
     Router,
 };
 use naitik_yral_multiple_services::middleware::create_before_send;
@@ -7,7 +7,6 @@ use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;
 use naitik_yral_multiple_services::{api::handlers::*, events};
 use naitik_yral_multiple_services::{config::AppConfig, ApiDoc};
-use naitik_yral_multiple_services::{get_swagger, get_swagger_root};
 use sentry_tower::{NewSentryLayer, SentryHttpLayer};
 use std::env;
 use std::sync::Arc;
@@ -63,11 +62,8 @@ async fn main_impl() -> Result<()> {
     // Build the application router with all routes defined here
     let app = Router::new()
         // API routes
-        .route("/recsys/send-view-count", post(send_view_count_to_recsys))
-        // OpenAPI/Swagger UI routes
-        .route("/explorer/{*tail}", get(get_swagger))
-        .route("/explorer/", get(get_swagger_root))
         .route("/healthz", get(healthz))
+        .route("/authenticated_health", get(authenticated_health))
         .fallback_service(router)
         .layer(CorsLayer::permissive())
         .layer(sentry_tower_layer)
