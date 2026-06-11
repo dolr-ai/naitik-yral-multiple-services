@@ -9,18 +9,12 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 use yral_metrics::metrics::sealed_metric::SealedMetric;
 
+use crate::events::event::WareHouseEvent;
 use crate::{
-    events::{event::Event, types::AnalyticsEvent, warehouse_events::WarehouseEvent},
+    events::{event::Event, types::AnalyticsEvent},
     state::AppState,
 };
 pub use yral_types::delegated_identity::DelegatedIdentityWire;
-
-pub mod warehouse_events {
-    tonic::include_proto!("warehouse_events");
-    #[allow(dead_code)]
-    pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
-        tonic::include_file_descriptor_set!("warehouse_events_descriptor");
-}
 
 pub mod event;
 pub mod push_notification;
@@ -118,7 +112,7 @@ async fn post_event(
         )
     })?;
 
-    let warehouse_event = WarehouseEvent {
+    let warehouse_event = WareHouseEvent {
         event: payload.event,
         params: payload.params,
     };
@@ -200,7 +194,7 @@ async fn post_event_v2(
     // Convert event name to snake_case for backwards compat with mobile sending PascalCase
     let event_name = to_snake_case(&payload.event);
 
-    let warehouse_event = WarehouseEvent {
+    let warehouse_event = WareHouseEvent {
         event: event_name,
         params: payload.params,
     };
@@ -281,7 +275,7 @@ pub async fn process_bulk_events_impl(
 ) -> Result<(), crate::utils::error::Error> {
     let mut video_view_counts: HashMap<String, u64> = HashMap::new(); // Cache for view counts to minimize send view count to recsys
     for req_event in request.events {
-        let event = Event::new(WarehouseEvent {
+        let event = Event::new(WareHouseEvent {
             event: req_event.tag(),
             params: req_event.params().to_string(),
         });
@@ -386,7 +380,7 @@ pub async fn process_bulk_events_impl_v2(
             map.remove("event");
         }
 
-        let event = Event::new(WarehouseEvent {
+        let event = Event::new(WareHouseEvent {
             event: event_name,
             params: payload.to_string(),
         });

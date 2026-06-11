@@ -19,14 +19,6 @@ jobs:
     steps:      
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            protobuf-compiler
 
       - name: Rust Setup
         uses: dtolnay/rust-toolchain@stable
@@ -74,14 +66,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            protobuf-compiler
 
       - name: Rust Setup
         uses: dtolnay/rust-toolchain@stable

@@ -1,8 +1,5 @@
 use crate::utils::error::Result;
-use crate::{
-    events::{types::VideoDurationWatchedPayloadV2, warehouse_events::WarehouseEvent},
-    utils::error::Error,
-};
+use crate::{events::types::VideoDurationWatchedPayloadV2, utils::error::Error};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -14,13 +11,19 @@ pub struct FlatEvent {
     pub params: Value,
 }
 
+#[derive(Debug, Clone)]
+pub struct WareHouseEvent {
+    pub event: String,
+    pub params: String,
+}
+
 #[derive(Debug)]
 pub struct Event {
-    pub event: WarehouseEvent,
+    pub event: WareHouseEvent,
 }
 
 impl Event {
-    pub fn new(event: WarehouseEvent) -> Self {
+    pub fn new(event: WareHouseEvent) -> Self {
         Self { event }
     }
 
