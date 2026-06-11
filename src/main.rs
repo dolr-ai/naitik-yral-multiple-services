@@ -7,7 +7,7 @@ use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;
 use naitik_yral_multiple_services::{api::handlers::*, events};
 use naitik_yral_multiple_services::{config::AppConfig, ApiDoc};
-use naitik_yral_multiple_services::{get_swagger, get_swagger_root, openapi_spec};
+use naitik_yral_multiple_services::{get_swagger, get_swagger_root};
 use sentry_tower::{NewSentryLayer, SentryHttpLayer};
 use std::env;
 use std::sync::Arc;
@@ -15,6 +15,7 @@ use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
+use utoipa_swagger_ui::SwaggerUi;
 
 fn setup_sentry_subscriber() {
     use tracing_subscriber::layer::SubscriberExt;
@@ -54,7 +55,10 @@ async fn main_impl() -> Result<()> {
         .nest("/api/v1/events", events::events_router(state.clone()))
         .nest("/api/v2/events", events::events_router_v2(state.clone()));
 
-    let (router, _) = router.split_for_parts();
+    let (router, api) = router.split_for_parts();
+
+    let router =
+        router.merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", api.clone()));
 
     // Build the application router with all routes defined here
     let app = Router::new()
@@ -63,7 +67,6 @@ async fn main_impl() -> Result<()> {
         // OpenAPI/Swagger UI routes
         .route("/explorer/{*tail}", get(get_swagger))
         .route("/explorer/", get(get_swagger_root))
-        .route("/api-doc/openapi.json", get(openapi_spec))
         .route("/healthz", get(healthz))
         .fallback_service(router)
         .layer(CorsLayer::permissive())
