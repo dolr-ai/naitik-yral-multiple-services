@@ -2,9 +2,9 @@ name : Deploy to Hetzner Bare Metal
 
 on:
   workflow_dispatch:
-  # push:
-    # branches:
-    #   - master
+  push:
+    branches:
+      - master
 
 permissions:
   id-token: write
