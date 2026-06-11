@@ -32,7 +32,7 @@ pub async fn authenticated_health(
     crate::auth::verify_token(token, &state.jwt_details)?;
 
     Ok(Json(Ok(
-        "View count sent to recsys successfully".to_string()
+        "Authenticated health check passed".to_string()
     )))
 }
 
