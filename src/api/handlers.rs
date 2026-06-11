@@ -1,14 +1,12 @@
 use crate::state::AppState;
 use crate::utils::error::{Error, NullOk, Result};
-use crate::utils::recsys_client::get_view_counts_for_videos;
 use crate::{types::ApiResult, utils::error::ErrorWrapper};
 use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use std::sync::Arc;
 
 #[utoipa::path(
-    post,
-    path = "/recsys/send-view-count",
-    request_body = Value,
+    get,
+    path = "/authenticated_health",
     responses(
         (status = 200, description = "View count sent to recsys successfully", body = NullOk), // OkWrapper<()> panics for some reason
         (status = 400, description = "Invalid request", body = ErrorWrapper<crate::utils::error::Error>),
@@ -19,11 +17,10 @@ use std::sync::Arc;
         ("bearer_auth" = [])
     )
 )]
-pub async fn send_view_count_to_recsys(
+pub async fn authenticated_health(
     State(state): State<Arc<AppState>>,
     headers: HeaderMap,
-    Json(req): Json<Vec<String>>,
-) -> Result<Json<ApiResult<()>>> {
+) -> Result<Json<ApiResult<String>>> {
     let token = headers
         .get("Authorization")
         .ok_or(Error::AuthTokenMissing)?
@@ -34,13 +31,7 @@ pub async fn send_view_count_to_recsys(
     // Verify JWT token
     crate::auth::verify_token(token, &state.jwt_details)?;
 
-    // Get view counts for the requested video IDs and send to recsys-system
-    let view_counts = get_view_counts_for_videos(&state.dragonfly_redis_store, &req).await?;
-    state
-        .recsys_client
-        .send_bulk_view_count_to_recsys(view_counts);
-
-    Ok(Json(Ok(())))
+    Ok(Json(Ok("Authenticated health check passed".to_string())))
 }
 
 #[utoipa::path(

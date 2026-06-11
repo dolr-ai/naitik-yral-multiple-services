@@ -14,7 +14,40 @@ permissions:
   id-token: write
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Rust Setup
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "stable"
+          targets: "x86_64-unknown-linux-musl"
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: musl-tools # provides musl-gcc
+          version: 1.0
+
+      - name: Build the project to `musl` output
+        run: "cargo build --release --target x86_64-unknown-linux-musl"
+
+      - run: touch config.toml
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.publish-artifact }}
+        with:
+          name: build-musl
+          path: |
+            target/x86_64-unknown-linux-musl/release/naitik-yral-multiple-services
+            config.toml
+
   test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Import Secrets from Vault
@@ -54,37 +87,3 @@ jobs:
           DRAGONFLY_REDIS_STORE_CLIENT_KEY: ${{ env.DRAGONFLY_REDIS_STORE_CLIENT_KEY }}
           DRAGONFLY_REDIS_STORE_HOSTS: ${{ env.DRAGONFLY_REDIS_STORE_HOSTS }}
           DRAGONFLY_REDIS_STORE_PASSWORD: ${{ env.DRAGONFLY_REDIS_STORE_PASSWORD }}
-
-  # Build on GitHub-hosted runner
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Rust Setup
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: "stable"
-          targets: "x86_64-unknown-linux-musl"
-      - uses: Swatinem/rust-cache@v2
-
-      - uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: musl-tools # provides musl-gcc
-          version: 1.0
-
-      - name: Build the project to `musl` output
-        run: "cargo build --release --target x86_64-unknown-linux-musl"
-
-      - run: touch config.toml
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ inputs.publish-artifact }}
-        with:
-          name: build-musl
-          path: |
-            target/x86_64-unknown-linux-musl/release/naitik-yral-multiple-services
-            config.toml

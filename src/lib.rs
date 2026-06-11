@@ -3,19 +3,12 @@ pub mod auth;
 pub mod config;
 pub mod consts;
 pub mod dragonfly;
+pub mod events;
 pub mod middleware;
 pub mod state;
 pub mod types;
 pub mod utils;
 
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    response::{IntoResponse, Response},
-    Json,
-};
-use std::sync::Arc;
-use utils::error::Error as ApiError;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 
@@ -41,7 +34,11 @@ impl Modify for BearerAuth {
 #[openapi(
     paths(
         api::handlers::healthz,
-        api::handlers::send_view_count_to_recsys,
+        api::handlers::authenticated_health,
+        events::post_event,
+        events::post_event_v2,
+        events::handle_bulk_events,
+        events::handle_bulk_events_v2,
     ),
     components(
         schemas()
@@ -60,49 +57,4 @@ impl Modify for BearerAuth {
         )
     )
 )]
-struct ApiDoc;
-
-pub async fn openapi_spec() -> impl IntoResponse {
-    Json(ApiDoc::openapi())
-}
-
-pub async fn get_swagger(Path(tail): Path<String>) -> Result<Response, ApiError> {
-    if tail == "swagger.json" {
-        let spec = ApiDoc::openapi()
-            .to_json()
-            .map_err(|err| ApiError::SwaggerUi(err.to_string()))?;
-        return Ok((StatusCode::OK, [("content-type", "application/json")], spec).into_response());
-    }
-
-    let config =
-        Arc::new(utoipa_swagger_ui::Config::new(["/explorer/swagger.json"]).use_base_layout());
-
-    match utoipa_swagger_ui::serve(&tail, config.clone())
-        .map_err(|err| ApiError::SwaggerUi(err.to_string()))?
-    {
-        None => Err(ApiError::SwaggerUi(format!("path not found: {}", tail))),
-        Some(file) => Ok((
-            StatusCode::OK,
-            [("content-type", file.content_type)],
-            file.bytes.to_vec(),
-        )
-            .into_response()),
-    }
-}
-
-pub async fn get_swagger_root() -> Result<Response, ApiError> {
-    let config =
-        Arc::new(utoipa_swagger_ui::Config::new(["/explorer/swagger.json"]).use_base_layout());
-
-    match utoipa_swagger_ui::serve("index.html", config.clone())
-        .map_err(|err| ApiError::SwaggerUi(err.to_string()))?
-    {
-        None => Err(ApiError::SwaggerUi("path not found".to_string())),
-        Some(file) => Ok((
-            StatusCode::OK,
-            [("content-type", file.content_type)],
-            file.bytes.to_vec(),
-        )
-            .into_response()),
-    }
-}
+pub struct ApiDoc;

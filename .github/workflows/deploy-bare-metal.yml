@@ -2,9 +2,9 @@ name : Deploy to Hetzner Bare Metal
 
 on:
   workflow_dispatch:
-  # push:
-    # branches:
-    #   - master
+  push:
+    branches:
+      - master
 
 permissions:
   id-token: write
@@ -107,6 +107,7 @@ jobs:
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_PASSWORD value | DRAGONFLY_REDIS_STORE_PASSWORD ;
             secret/data/naitik-yral-multiple-services/OFFCHAIN_REQUEST_VERIFY_PUBLIC_KEY value | JWT_PUBLIC_KEY ;
             secret/data/naitik-yral-multiple-services/RECSYS_INTERNAL_CALL_SECRET_KEY value | RECSYS_INTERNAL_CALL_SECRET_KEY ;
+            secret/data/naitik-yral-multiple-services/YRAL_METADATA_TOKEN value | YRAL_METADATA_TOKEN ;
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -148,6 +149,7 @@ jobs:
           DRAGONFLY_REDIS_STORE_PASSWORD: ${{ env.DRAGONFLY_REDIS_STORE_PASSWORD }}
           JWT_PUBLIC_KEY: ${{ env.JWT_PUBLIC_KEY }}
           RECSYS_INTERNAL_CALL_SECRET_KEY: ${{ env.RECSYS_INTERNAL_CALL_SECRET_KEY }}
+          YRAL_METADATA_TOKEN: ${{ env.YRAL_METADATA_TOKEN }}
         run: |
           # Create deployment directory if not exists
           ssh $SERVER_USER@$SERVER_HOST "mkdir -p naitik-yral-multiple-services"
@@ -174,6 +176,7 @@ jobs:
             DRAGONFLY_REDIS_STORE_CLIENT_KEY='$DRAGONFLY_REDIS_STORE_CLIENT_KEY' \
             JWT_PUBLIC_KEY='$JWT_PUBLIC_KEY' \
             RECSYS_INTERNAL_CALL_SECRET_KEY='$RECSYS_INTERNAL_CALL_SECRET_KEY' \
+            YRAL_METADATA_TOKEN='$YRAL_METADATA_TOKEN' \
             docker compose up -d
 
             echo 'Waiting for services to start...'
