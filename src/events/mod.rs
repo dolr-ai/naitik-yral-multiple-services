@@ -5,8 +5,6 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::ToSchema;
-use utoipa_axum::router::OpenApiRouter;
-use utoipa_axum::routes;
 use yral_metrics::metrics::sealed_metric::SealedMetric;
 
 use crate::events::event::WareHouseEvent;
