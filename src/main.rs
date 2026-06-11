@@ -1,7 +1,4 @@
-use axum::{
-    routing::get,
-    Router,
-};
+use axum::{routing::get, Router};
 use naitik_yral_multiple_services::middleware::create_before_send;
 use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;

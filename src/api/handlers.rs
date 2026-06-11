@@ -31,7 +31,9 @@ pub async fn authenticated_health(
     // Verify JWT token
     crate::auth::verify_token(token, &state.jwt_details)?;
 
-    Ok(Json(Ok("View count sent to recsys successfully".to_string())))
+    Ok(Json(Ok(
+        "View count sent to recsys successfully".to_string()
+    )))
 }
 
 #[utoipa::path(
