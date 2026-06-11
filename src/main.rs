@@ -2,7 +2,7 @@ use axum::{routing::get, Router};
 use naitik_yral_multiple_services::middleware::create_before_send;
 use naitik_yral_multiple_services::state::AppState;
 use naitik_yral_multiple_services::utils::error::*;
-use naitik_yral_multiple_services::{api::handlers::*, events};
+use naitik_yral_multiple_services::{api::handlers::*, events::*};
 use naitik_yral_multiple_services::{config::AppConfig, ApiDoc};
 use sentry_tower::{NewSentryLayer, SentryHttpLayer};
 use std::env;
@@ -11,6 +11,7 @@ use tower::ServiceBuilder;
 use tower_http::cors::CorsLayer;
 use utoipa::OpenApi;
 use utoipa_axum::router::OpenApiRouter;
+use utoipa_axum::routes;
 use utoipa_swagger_ui::SwaggerUi;
 
 fn setup_sentry_subscriber() {
@@ -48,8 +49,11 @@ async fn main_impl() -> Result<()> {
         .layer(SentryHttpLayer::with_transaction());
 
     let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
-        .nest("/api/v1/events", events::events_router(state.clone()))
-        .nest("/api/v2/events", events::events_router_v2(state.clone()));
+        .routes(routes!(post_event))
+        .routes(routes!(handle_bulk_events))
+        .routes(routes!(post_event_v2))
+        .routes(routes!(handle_bulk_events_v2))
+        .with_state(state.clone());
 
     let (router, api) = router.split_for_parts();
 

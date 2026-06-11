@@ -81,7 +81,7 @@ pub struct EventRequest {
         (status = 500, description = "Internal server error"),
     )
 )]
-async fn post_event(
+pub async fn post_event(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     Json(payload): Json<EventRequest>,
@@ -160,7 +160,7 @@ pub async fn process_event_impl(
         (status = 500, description = "Internal server error"),
     )
 )]
-async fn post_event_v2(
+pub async fn post_event_v2(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     Json(payload): Json<EventRequest>,
@@ -225,7 +225,7 @@ async fn post_event_v2(
         (status = 403, description = "Forbidden"),
     )
 )]
-async fn handle_bulk_events(
+pub async fn handle_bulk_events(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     Json(request): Json<VerifiedEventBulkRequest>,
@@ -307,7 +307,7 @@ pub async fn process_bulk_events_impl(
         (status = 403, description = "Forbidden"),
     )
 )]
-async fn handle_bulk_events_v2(
+pub async fn handle_bulk_events_v2(
     State(state): State<Arc<AppState>>,
     headers: axum::http::HeaderMap,
     Json(request): Json<VerifiedEventBulkRequestV2>,
@@ -397,18 +397,4 @@ pub async fn process_bulk_events_impl_v2(
     state.send_bulk_view_count_to_recsys(video_view_counts);
 
     Ok(())
-}
-
-pub fn events_router(state: Arc<AppState>) -> OpenApiRouter {
-    OpenApiRouter::new()
-        .routes(routes!(post_event))
-        .routes(routes!(handle_bulk_events))
-        .with_state(state)
-}
-
-pub fn events_router_v2(state: Arc<AppState>) -> OpenApiRouter {
-    OpenApiRouter::new()
-        .routes(routes!(post_event_v2))
-        .routes(routes!(handle_bulk_events_v2))
-        .with_state(state)
 }
