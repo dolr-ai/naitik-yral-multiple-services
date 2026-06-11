@@ -169,6 +169,8 @@ jobs:
             
             echo 'Stopping existing containers...'
             docker compose down --remove-orphans || true
+
+            echo '$JWT_PUBLIC_KEY'
             
             echo 'Starting services...'
             APP_IMAGE=ghcr.io/${{ github.repository }} \
@@ -179,7 +181,7 @@ jobs:
             DRAGONFLY_REDIS_STORE_CA_CERT='$DRAGONFLY_REDIS_STORE_CA_CERT' \
             DRAGONFLY_REDIS_STORE_CLIENT_CERT='$DRAGONFLY_REDIS_STORE_CLIENT_CERT' \
             DRAGONFLY_REDIS_STORE_CLIENT_KEY='$DRAGONFLY_REDIS_STORE_CLIENT_KEY' \
-            JWT_PUBLIC_KEY="$JWT_PUBLIC_KEY" \
+            JWT_PUBLIC_KEY='$JWT_PUBLIC_KEY' \
             RECSYS_INTERNAL_CALL_SECRET_KEY='$RECSYS_INTERNAL_CALL_SECRET_KEY' \
             YRAL_METADATA_TOKEN='$YRAL_METADATA_TOKEN' \
             docker compose up -d
