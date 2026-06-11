@@ -72,7 +72,7 @@ pub struct EventRequest {
 
 #[utoipa::path(
     post,
-    path = "",
+    path = "/api/v1/events",
     request_body = EventRequest,
     tag = "events",
     responses(
@@ -151,7 +151,7 @@ pub async fn process_event_impl(
 
 #[utoipa::path(
     post,
-    path = "",
+    path = "/api/v2/events",
     request_body = EventRequest,
     tag = "events",
     responses(
@@ -215,7 +215,7 @@ async fn post_event_v2(
 
 #[utoipa::path(
     post,
-    path = "/bulk",
+    path = "/api/v1/events/bulk",
     request_body = EventBulkRequest,
     tag = "events",
     responses(
@@ -297,7 +297,7 @@ pub async fn process_bulk_events_impl(
 
 #[utoipa::path(
     post,
-    path = "/bulk",
+    path = "/api/v2/events/bulk",
     request_body = EventBulkRequestV2,
     tag = "events",
     responses(
