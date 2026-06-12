@@ -5,10 +5,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
-
 
 permissions:
   id-token: write
@@ -104,15 +100,15 @@ jobs:
           role: naitik-yral-multiple-services-role
           jwtGithubAudience: "https://github.com/dolr-ai"
           secrets: |
+            secret/data/naitik-yral-multiple-services/OFFCHAIN_REQUEST_VERIFY_PUBLIC_KEY value | JWT_PUBLIC_KEY ;
+            secret/data/naitik-yral-multiple-services/RECSYS_INTERNAL_CALL_SECRET_KEY value | RECSYS_INTERNAL_CALL_SECRET_KEY ;
+            secret/data/naitik-yral-multiple-services/YRAL_METADATA_TOKEN value | YRAL_METADATA_TOKEN ;
+            secret/data/naitik-yral-multiple-services/NAITIK_MACHINE_ACCESS_PRIVATE_KEY value | NAITIK_MACHINE_ACCESS_PRIVATE_KEY ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CA_CERT value | DRAGONFLY_REDIS_STORE_CA_CERT ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CLIENT_CERT value | DRAGONFLY_REDIS_STORE_CLIENT_CERT ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_CLIENT_KEY value | DRAGONFLY_REDIS_STORE_CLIENT_KEY ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_HOSTS value | DRAGONFLY_REDIS_STORE_HOSTS ;
             secret/data/naitik-yral-multiple-services/DRAGONFLY_REDIS_STORE_PASSWORD value | DRAGONFLY_REDIS_STORE_PASSWORD ;
-            secret/data/naitik-yral-multiple-services/YRAL_METADATA_TOKEN value | YRAL_METADATA_TOKEN ;
-            secret/data/naitik-yral-multiple-services/OFFCHAIN_REQUEST_VERIFY_PUBLIC_KEY value | JWT_PUBLIC_KEY ;
-            secret/data/naitik-yral-multiple-services/RECSYS_INTERNAL_CALL_SECRET_KEY value | RECSYS_INTERNAL_CALL_SECRET_KEY ;
-            secret/data/naitik-yral-multiple-services/NAITIK_MACHINE_ACCESS_PRIVATE_KEY value | NAITIK_MACHINE_ACCESS_PRIVATE_KEY ;
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -147,14 +143,14 @@ jobs:
           SERVER_HOST: ${{ matrix.server.host }}
           SERVER_USER: naitik
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JWT_PUBLIC_KEY: ${{ env.JWT_PUBLIC_KEY }}
+          RECSYS_INTERNAL_CALL_SECRET_KEY: ${{ env.RECSYS_INTERNAL_CALL_SECRET_KEY }}
+          YRAL_METADATA_TOKEN: ${{ env.YRAL_METADATA_TOKEN }}
           DRAGONFLY_REDIS_STORE_CA_CERT: ${{ env.DRAGONFLY_REDIS_STORE_CA_CERT }}
           DRAGONFLY_REDIS_STORE_CLIENT_CERT: ${{ env.DRAGONFLY_REDIS_STORE_CLIENT_CERT }}
           DRAGONFLY_REDIS_STORE_CLIENT_KEY: ${{ env.DRAGONFLY_REDIS_STORE_CLIENT_KEY }}
           DRAGONFLY_REDIS_STORE_HOSTS: ${{ env.DRAGONFLY_REDIS_STORE_HOSTS }}
           DRAGONFLY_REDIS_STORE_PASSWORD: ${{ env.DRAGONFLY_REDIS_STORE_PASSWORD }}
-          JWT_PUBLIC_KEY: ${{ env.JWT_PUBLIC_KEY }}
-          RECSYS_INTERNAL_CALL_SECRET_KEY: ${{ env.RECSYS_INTERNAL_CALL_SECRET_KEY }}
-          YRAL_METADATA_TOKEN: ${{ env.YRAL_METADATA_TOKEN }}
         run: |
           # Create deployment directory if not exists
           ssh $SERVER_USER@$SERVER_HOST "mkdir -p naitik-yral-multiple-services"
@@ -169,19 +165,19 @@ jobs:
             
             echo 'Stopping existing containers...'
             docker compose down --remove-orphans || true
-            
+
             echo 'Starting services...'
             APP_IMAGE=ghcr.io/${{ github.repository }} \
             IMAGE_TAG=${{ github.sha }} \
             BIND_ADDRESS=0.0.0.0:6000 \
-            DRAGONFLY_REDIS_STORE_PASSWORD='$DRAGONFLY_REDIS_STORE_PASSWORD' \
-            DRAGONFLY_REDIS_STORE_HOSTS='$DRAGONFLY_REDIS_STORE_HOSTS' \
-            DRAGONFLY_REDIS_STORE_CA_CERT='$DRAGONFLY_REDIS_STORE_CA_CERT' \
-            DRAGONFLY_REDIS_STORE_CLIENT_CERT='$DRAGONFLY_REDIS_STORE_CLIENT_CERT' \
-            DRAGONFLY_REDIS_STORE_CLIENT_KEY='$DRAGONFLY_REDIS_STORE_CLIENT_KEY' \
-            JWT_PUBLIC_KEY='$JWT_PUBLIC_KEY' \
-            RECSYS_INTERNAL_CALL_SECRET_KEY='$RECSYS_INTERNAL_CALL_SECRET_KEY' \
-            YRAL_METADATA_TOKEN='$YRAL_METADATA_TOKEN' \
+            JWT_PUBLIC_KEY='${JWT_PUBLIC_KEY}' \
+            RECSYS_INTERNAL_CALL_SECRET_KEY='${RECSYS_INTERNAL_CALL_SECRET_KEY}' \
+            YRAL_METADATA_TOKEN='${YRAL_METADATA_TOKEN}' \
+            DRAGONFLY_REDIS_STORE_PASSWORD='${DRAGONFLY_REDIS_STORE_PASSWORD}' \
+            DRAGONFLY_REDIS_STORE_HOSTS='${DRAGONFLY_REDIS_STORE_HOSTS}' \
+            DRAGONFLY_REDIS_STORE_CA_CERT='${DRAGONFLY_REDIS_STORE_CA_CERT}' \
+            DRAGONFLY_REDIS_STORE_CLIENT_CERT='${DRAGONFLY_REDIS_STORE_CLIENT_CERT}' \
+            DRAGONFLY_REDIS_STORE_CLIENT_KEY='${DRAGONFLY_REDIS_STORE_CLIENT_KEY}' \
             docker compose up -d
 
             echo 'Waiting for services to start...'
