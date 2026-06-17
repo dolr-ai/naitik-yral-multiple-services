@@ -8,6 +8,7 @@ use utoipa::ToSchema;
 use yral_metrics::metrics::sealed_metric::SealedMetric;
 
 use crate::events::event::WareHouseEvent;
+use crate::events::push_notification::dispatch_notif;
 use crate::{
     events::{event::Event, types::AnalyticsEvent},
     state::AppState,
@@ -133,6 +134,13 @@ pub async fn process_event_impl(
     event: Event,
     state: Arc<AppState>,
 ) -> Result<(), crate::utils::error::Error> {
+    let params: Value = serde_json::from_str(&event.event.params)
+        .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
+
+    if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
+        log::error!("Failed to dispatch notification: {e:?}");
+    }
+    
     let mut video_view_counts = HashMap::new();
     event
         .process_video_view_count(&state, &mut video_view_counts)
@@ -278,6 +286,13 @@ pub async fn process_bulk_events_impl(
             params: req_event.params().to_string(),
         });
 
+        let params: Value = serde_json::from_str(&event.event.params)
+        .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
+
+        if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
+            log::error!("Failed to dispatch notification: {e:?}");
+        }
+
         event
             .process_video_view_count(&state, &mut video_view_counts)
             .await
@@ -382,6 +397,13 @@ pub async fn process_bulk_events_impl_v2(
             event: event_name,
             params: payload.to_string(),
         });
+
+        let params: Value = serde_json::from_str(&event.event.params)
+        .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
+
+        if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
+            log::error!("Failed to dispatch notification: {e:?}");
+        }
 
         event
             .process_video_view_count(&state, &mut video_view_counts)
