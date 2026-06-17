@@ -140,7 +140,7 @@ pub async fn process_event_impl(
     if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
         log::error!("Failed to dispatch notification: {e:?}");
     }
-    
+
     let mut video_view_counts = HashMap::new();
     event
         .process_video_view_count(&state, &mut video_view_counts)
@@ -287,7 +287,7 @@ pub async fn process_bulk_events_impl(
         });
 
         let params: Value = serde_json::from_str(&event.event.params)
-        .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
+            .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
 
         if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
             log::error!("Failed to dispatch notification: {e:?}");
@@ -399,7 +399,7 @@ pub async fn process_bulk_events_impl_v2(
         });
 
         let params: Value = serde_json::from_str(&event.event.params)
-        .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
+            .map_err(|e| crate::utils::error::Error::DataParseError(e.to_string()))?;
 
         if let Err(e) = dispatch_notif(&event.event.event, params, &state.clone()).await {
             log::error!("Failed to dispatch notification: {e:?}");
