@@ -882,6 +882,10 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
                         fcm_options: Some(ApnsFcmOptions {
                             image: Some(
                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
@@ -961,6 +965,10 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
                         fcm_options: Some(ApnsFcmOptions {
                             image: Some(
                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
@@ -1092,6 +1100,10 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
                         fcm_options: Some(ApnsFcmOptions {
                             image: Some(
                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
@@ -1162,6 +1174,10 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
                         fcm_options: Some(ApnsFcmOptions {
                             image: Some(
                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
@@ -1226,6 +1242,10 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
                         fcm_options: Some(ApnsFcmOptions {
                             image: Some(
                                 "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
@@ -1327,4 +1347,86 @@ pub fn deserialize_event_payload(
         )?)),
         _ => Err(serde_json::Error::unknown_field(event_name, &[])),
     }
+}
+
+#[test]
+fn test_data_payload_serialization() {
+    let payload = VideoUploadSuccessfulPayload {
+        canister_id: Principal::from_text("mlj75-eyaaa-aaaaa-qbn5q-cai").unwrap(),
+        post_id: "123".to_string(),
+        publisher_user_id: Principal::from_text("mlj75-eyaaa-aaaaa-qbn5q-cai").unwrap(),
+        user_id: Principal::from_text("mlj75-eyaaa-aaaaa-qbn5q-cai").unwrap(),
+        display_name: None,
+        creator_category: "test".to_string(),
+        hashtag_count: 0,
+        is_nsfw: false,
+        is_hot_or_not: false,
+        is_filter_used: false,
+        video_id: "test".to_string(),
+        country: None,
+        internal_url: None,
+    };
+
+    let data = EventPayload::VideoUploadSuccessful(payload.clone());
+
+    let notif_payload = SendNotificationReq {
+        notification: Some(NotificationPayload {
+            title: Some("test".to_string()),
+            body: Some("test".to_string()),
+            image: Some("https://yral.com/img/yral/android-chrome-384x384.png".to_string()),
+        }),
+        data: Some(json!({
+            "payload": serde_json::to_string(&data).unwrap()
+        })),
+        android: Some(AndroidConfig {
+            notification: Some(AndroidNotification {
+                icon: Some("https://yral.com/img/yral/android-chrome-384x384.png".to_string()),
+                image: Some("https://yral.com/img/yral/android-chrome-384x384.png".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        webpush: Some(WebpushConfig {
+            fcm_options: Some(WebpushFcmOptions {
+                link: Some(format!(
+                    "https://yral.com/hot-or-not/{}/{}",
+                    payload.canister_id.to_text(),
+                    payload.post_id
+                )),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        apns: Some(ApnsConfig {
+            headers: Some(json!({
+                "apns-push-type": "alert",
+                "apns-priority": "10",
+            })),
+            fcm_options: Some(ApnsFcmOptions {
+                image: Some("https://yral.com/img/yral/android-chrome-384x384.png".to_string()),
+                ..Default::default()
+            }),
+            payload: Some(json!({
+                "aps": {
+                    "alert": {
+                        "title": "test".to_string(),
+                        "body": "test".to_string(),
+                    },
+                    "sound": "default",
+                },
+                "url": format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)
+            })),
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let stringed_payload = serde_json::to_string(&notif_payload).unwrap();
+
+    let deserialized_payload: SendNotificationReq =
+        serde_json::from_str(&stringed_payload).unwrap();
+
+    assert!(deserialized_payload.clone().data.unwrap()["payload"].is_string());
+
+    println!("{:?}", deserialized_payload.data.unwrap()["payload"]);
 }
