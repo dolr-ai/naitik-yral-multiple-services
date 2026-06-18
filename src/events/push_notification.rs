@@ -52,7 +52,7 @@ pub async fn dispatch_notif(
     event_type: &str,
     params: Value,
     app_state: &AppState,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     if !NOTIFICATION_EVENTS.contains(&event_type) {
         return Ok(());
     }
