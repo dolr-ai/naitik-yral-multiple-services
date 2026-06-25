@@ -1,10 +1,11 @@
 use candid::Principal;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
-use std::collections::HashMap;
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use utoipa::ToSchema;
 use yral_metadata_types::{
-    AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, ApnsPayload, Aps, ApsAlert, NotificationPayload, SendNotificationReq, WebpushConfig, WebpushFcmOptions
+    AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, ApnsPayload, Aps, ApsAlert,
+    NotificationPayload, SendNotificationReq, WebpushConfig, WebpushFcmOptions,
 };
 use yral_metrics::metrics::{
     like_video::LikeVideo, sealed_metric::SealedMetric,
@@ -904,7 +905,11 @@ impl EventPayload {
                             },
                             custom_data: HashMap::from([(
                                 "url".to_string(),
-                                json!(format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)),
+                                json!(format!(
+                                    "https://yral.com/hot-or-not/{}/{}",
+                                    canister_id.to_text(),
+                                    payload.post_id
+                                )),
                             )]),
                         }),
                         ..Default::default()
@@ -992,7 +997,12 @@ impl EventPayload {
                             },
                             custom_data: HashMap::from([(
                                 "url".to_string(),
-                                json!(format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)))]),
+                                json!(format!(
+                                    "https://yral.com/hot-or-not/{}/{}",
+                                    canister_id.to_text(),
+                                    payload.post_id
+                                )),
+                            )]),
                         }),
                         ..Default::default()
                     }),
@@ -1275,7 +1285,10 @@ impl EventPayload {
                                 mutable_content: Some(1),
                                 ..Default::default()
                             },
-                            custom_data: HashMap::from([("url".to_string(), json!("https://yral.com"))]),
+                            custom_data: HashMap::from([(
+                                "url".to_string(),
+                                json!("https://yral.com"),
+                            )]),
                         }),
                         ..Default::default()
                     }),
@@ -1433,7 +1446,12 @@ fn test_data_payload_serialization() {
                 },
                 custom_data: HashMap::from([(
                     "url".to_string(),
-                    json!(format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)))]),
+                    json!(format!(
+                        "https://yral.com/hot-or-not/{}/{}",
+                        payload.canister_id.to_text(),
+                        payload.post_id
+                    )),
+                )]),
             }),
             ..Default::default()
         }),
