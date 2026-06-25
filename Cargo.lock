@@ -2081,9 +2081,9 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "utoipa-swagger-ui",
- "yral-identity",
+ "yral-identity 0.1.0 (git+https://github.com/dolr-ai/yral-common.git?branch=master)",
  "yral-metadata-client",
- "yral-metadata-types",
+ "yral-metadata-types 0.1.0 (git+https://github.com/dolr-ai/yral-metadata?rev=7133159ab09ba462c2b99d0bf8153991ff2bd63c)",
  "yral-metrics",
  "yral-types",
 ]
@@ -4912,6 +4912,17 @@ dependencies = [
 [[package]]
 name = "yral-identity"
 version = "0.1.0"
+source = "git+https://github.com/dolr-ai/yral-common.git?branch=main#55e7ec1d1cff6ff19b74f45714c21a1cc4fff15d"
+dependencies = [
+ "candid",
+ "serde",
+ "thiserror 2.0.18",
+ "web-time",
+]
+
+[[package]]
+name = "yral-identity"
+version = "0.1.0"
 source = "git+https://github.com/dolr-ai/yral-common.git?branch=master#395030df8b5038775e1a4a3d2af14ca7e4e2ee9b"
 dependencies = [
  "candid",
@@ -4929,8 +4940,8 @@ dependencies = [
  "ic-agent",
  "reqwest",
  "thiserror 1.0.69",
- "yral-identity",
- "yral-metadata-types",
+ "yral-identity 0.1.0 (git+https://github.com/dolr-ai/yral-common.git?branch=master)",
+ "yral-metadata-types 0.1.0 (git+https://github.com/dolr-ai/yral-metadata.git?branch=master)",
 ]
 
 [[package]]
@@ -4945,7 +4956,22 @@ dependencies = [
  "thiserror 1.0.69",
  "utoipa",
  "utoipa-swagger-ui",
- "yral-identity",
+ "yral-identity 0.1.0 (git+https://github.com/dolr-ai/yral-common.git?branch=master)",
+]
+
+[[package]]
+name = "yral-metadata-types"
+version = "0.1.0"
+source = "git+https://github.com/dolr-ai/yral-metadata?rev=7133159ab09ba462c2b99d0bf8153991ff2bd63c#7133159ab09ba462c2b99d0bf8153991ff2bd63c"
+dependencies = [
+ "candid",
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "utoipa",
+ "utoipa-swagger-ui",
+ "yral-identity 0.1.0 (git+https://github.com/dolr-ai/yral-common.git?branch=main)",
 ]
 
 [[package]]

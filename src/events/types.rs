@@ -1,10 +1,10 @@
 use candid::Principal;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use std::collections::HashMap;
 use serde_json::{json, Value};
 use utoipa::ToSchema;
 use yral_metadata_types::{
-    AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, NotificationPayload,
-    SendNotificationReq, WebpushConfig, WebpushFcmOptions,
+    AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, ApnsPayload, Aps, ApsAlert, NotificationPayload, SendNotificationReq, WebpushConfig, WebpushFcmOptions
 };
 use yral_metrics::metrics::{
     like_video::LikeVideo, sealed_metric::SealedMetric,
@@ -892,17 +892,21 @@ impl EventPayload {
                             ),
                             ..Default::default()
                         }),
-                        payload: Some(json!({
-                            "aps": {
-                                "alert": {
-                                    "title": title.to_string(),
-                                    "body": body.to_string(),
-                                },
-                                "sound": "default",
-                                "mutable-content": 1,
+                        payload: Some(ApnsPayload {
+                            aps: Aps {
+                                alert: Some(ApsAlert {
+                                    title: Some(title.to_string()),
+                                    body: Some(body.to_string()),
+                                }),
+                                sound: Some("default".to_string()),
+                                mutable_content: Some(1),
+                                ..Default::default()
                             },
-                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
-                        })),
+                            custom_data: HashMap::from([(
+                                "url".to_string(),
+                                json!(format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)),
+                            )]),
+                        }),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -976,17 +980,20 @@ impl EventPayload {
                             ),
                             ..Default::default()
                         }),
-                        payload: Some(json!({
-                            "aps": {
-                                "alert": {
-                                    "title": title.to_string(),
-                                    "body": body.to_string(),
-                                },
-                                "sound": "default",
-                                "mutable-content": 1,
+                        payload: Some(ApnsPayload {
+                            aps: Aps {
+                                alert: Some(ApsAlert {
+                                    title: Some(title.to_string()),
+                                    body: Some(body.to_string()),
+                                }),
+                                sound: Some("default".to_string()),
+                                mutable_content: Some(1),
+                                ..Default::default()
                             },
-                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
-                        })),
+                            custom_data: HashMap::from([(
+                                "url".to_string(),
+                                json!(format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)))]),
+                        }),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -1112,17 +1119,18 @@ impl EventPayload {
                             ),
                             ..Default::default()
                         }),
-                        payload: Some(json!({
-                            "aps": {
-                                "alert": {
-                                    "title": title.to_string(),
-                                    "body": body,
-                                },
-                                "sound": "default",
-                                "mutable-content": 1,
+                        payload: Some(ApnsPayload {
+                            aps: Aps {
+                                alert: Some(ApsAlert {
+                                    title: Some(title.to_string()),
+                                    body: Some(body),
+                                }),
+                                sound: Some("default".to_string()),
+                                mutable_content: Some(1),
+                                ..Default::default()
                             },
-                            "url": profile_url
-                        })),
+                            custom_data: HashMap::from([("url".to_string(), json!(profile_url))]),
+                        }),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -1187,17 +1195,18 @@ impl EventPayload {
                             ),
                             ..Default::default()
                         }),
-                        payload: Some(json!({
-                            "aps": {
-                                "alert": {
-                                    "title": title.to_string(),
-                                    "body": body.to_string(),
-                                },
-                                "sound": "default",
-                                "mutable-content": 1,
+                        payload: Some(ApnsPayload {
+                            aps: Aps {
+                                alert: Some(ApsAlert {
+                                    title: Some(title.to_string()),
+                                    body: Some(body.to_string()),
+                                }),
+                                sound: Some("default".to_string()),
+                                mutable_content: Some(1),
+                                ..Default::default()
                             },
-                            "url": video_url
-                        })),
+                            custom_data: HashMap::from([("url".to_string(), json!(video_url))]),
+                        }),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -1256,17 +1265,18 @@ impl EventPayload {
                             ),
                             ..Default::default()
                         }),
-                        payload: Some(json!({
-                            "aps": {
-                                "alert": {
-                                    "title": title.to_string(),
-                                    "body": body.to_string(),
-                                },
-                                "sound": "default",
-                                "mutable-content": 1,
+                        payload: Some(ApnsPayload {
+                            aps: Aps {
+                                alert: Some(ApsAlert {
+                                    title: Some(title.to_string()),
+                                    body: Some(body.to_string()),
+                                }),
+                                sound: Some("default".to_string()),
+                                mutable_content: Some(1),
+                                ..Default::default()
                             },
-                            "url": "https://yral.com"
-                        })),
+                            custom_data: HashMap::from([("url".to_string(), json!("https://yral.com"))]),
+                        }),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -1411,17 +1421,20 @@ fn test_data_payload_serialization() {
                 image: Some("https://yral.com/img/yral/android-chrome-384x384.png".to_string()),
                 ..Default::default()
             }),
-            payload: Some(json!({
-                "aps": {
-                    "alert": {
-                        "title": "test".to_string(),
-                        "body": "test".to_string(),
-                    },
-                    "sound": "default",
-                    "mutable-content": 1,
+            payload: Some(ApnsPayload {
+                aps: Aps {
+                    alert: Some(ApsAlert {
+                        title: Some("test".to_string()),
+                        body: Some("test".to_string()),
+                    }),
+                    sound: Some("default".to_string()),
+                    mutable_content: Some(1),
+                    ..Default::default()
                 },
-                "url": format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)
-            })),
+                custom_data: HashMap::from([(
+                    "url".to_string(),
+                    json!(format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)))]),
+            }),
             ..Default::default()
         }),
         ..Default::default()

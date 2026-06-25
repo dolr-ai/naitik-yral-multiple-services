@@ -42,7 +42,7 @@ hyper-rustls = { version = "0.27.5", features = [
     "ring",
 ] }
 yral-identity = { git = "https://github.com/dolr-ai/yral-common.git", default-features = false, branch = "master" }
-yral-metadata-types = { git = "https://github.com/dolr-ai/yral-metadata", branch = "master", version = "0.1.0" }
+yral-metadata-types = { git = "https://github.com/dolr-ai/yral-metadata", rev = "7133159ab09ba462c2b99d0bf8153991ff2bd63c" }
 yral-metrics = { git = "https://github.com/dolr-ai/yral-common", branch = "master" }
 yral-types = { git = "https://github.com/dolr-ai/yral-common", branch = "master" }
 yral-metadata-client = { git = "https://github.com/dolr-ai/yral-metadata.git", branch = "master", features = [
