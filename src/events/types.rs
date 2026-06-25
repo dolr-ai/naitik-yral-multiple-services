@@ -899,6 +899,7 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
+                                "mutable-content": 1,
                             },
                             "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
                         })),
@@ -982,6 +983,7 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
+                                "mutable-content": 1,
                             },
                             "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
                         })),
@@ -1117,6 +1119,7 @@ impl EventPayload {
                                     "body": body,
                                 },
                                 "sound": "default",
+                                "mutable-content": 1,
                             },
                             "url": profile_url
                         })),
@@ -1191,6 +1194,7 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
+                                "mutable-content": 1,
                             },
                             "url": video_url
                         })),
@@ -1259,6 +1263,7 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
+                                "mutable-content": 1,
                             },
                             "url": "https://yral.com"
                         })),
@@ -1413,6 +1418,7 @@ fn test_data_payload_serialization() {
                         "body": "test".to_string(),
                     },
                     "sound": "default",
+                    "mutable-content": 1,
                 },
                 "url": format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)
             })),
