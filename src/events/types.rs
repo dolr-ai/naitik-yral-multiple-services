@@ -900,7 +900,6 @@ impl EventPayload {
                                     body: Some(body.to_string()),
                                 }),
                                 sound: Some("default".to_string()),
-                                mutable_content: Some(1),
                                 ..Default::default()
                             },
                             custom_data: HashMap::from([(
@@ -992,7 +991,6 @@ impl EventPayload {
                                     body: Some(body.to_string()),
                                 }),
                                 sound: Some("default".to_string()),
-                                mutable_content: Some(1),
                                 ..Default::default()
                             },
                             custom_data: HashMap::from([(
@@ -1136,7 +1134,6 @@ impl EventPayload {
                                     body: Some(body),
                                 }),
                                 sound: Some("default".to_string()),
-                                mutable_content: Some(1),
                                 ..Default::default()
                             },
                             custom_data: HashMap::from([("url".to_string(), json!(profile_url))]),
@@ -1212,7 +1209,6 @@ impl EventPayload {
                                     body: Some(body.to_string()),
                                 }),
                                 sound: Some("default".to_string()),
-                                mutable_content: Some(1),
                                 ..Default::default()
                             },
                             custom_data: HashMap::from([("url".to_string(), json!(video_url))]),
@@ -1282,7 +1278,6 @@ impl EventPayload {
                                     body: Some(body.to_string()),
                                 }),
                                 sound: Some("default".to_string()),
-                                mutable_content: Some(1),
                                 ..Default::default()
                             },
                             custom_data: HashMap::from([(
@@ -1441,7 +1436,6 @@ fn test_data_payload_serialization() {
                         body: Some("test".to_string()),
                     }),
                     sound: Some("default".to_string()),
-                    mutable_content: Some(1),
                     ..Default::default()
                 },
                 custom_data: HashMap::from([(
