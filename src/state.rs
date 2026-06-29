@@ -6,13 +6,13 @@ use crate::dragonfly::{
     get_redis_store_ca_cert, get_redis_store_client_cert, get_redis_store_client_key,
     init_dragonfly_redis_store, DragonflyPool,
 };
+use crate::metadata_client::MetadataClient;
 use crate::utils::error::Result;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::collections::HashMap;
 use std::env;
 use std::sync::Arc;
-use yral_metadata_client::MetadataClient;
 type HmacSha256 = Hmac<Sha256>;
 
 pub static IC_AGENT_URL: &str = "https://ic0.app";

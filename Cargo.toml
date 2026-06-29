@@ -16,6 +16,7 @@ anyhow = "1.0.86"
 candid = "0.10.6"
 chrono = "0.4"
 log = "0.4.27"
+rand = "0.8.5"
 axum = { version = "0.8.0", features = ["macros", "json"] }
 tower = "0.5.2"
 tower-http = { version = "0.6.2", features = ["cors", "trace"] }
@@ -43,10 +44,8 @@ hyper-rustls = { version = "0.27.5", features = [
     "webpki-roots",
     "ring",
 ] }
-yral-metadata-types = { git = "https://github.com/dolr-ai/yral-metadata", branch="main" }
-yral-metadata-client = { git = "https://github.com/dolr-ai/yral-metadata.git", branch = "main", features = [
-    "rustls-tls",
-], default-features = false }
+ic-validator-ingress-message = { git = "https://github.com/dfinity/ic.git", default-features = false, rev = "9806534c9ce6f1b91f7fbd554e6957f4acbdb3ea"}
+ic-types = { git = "https://github.com/dfinity/ic.git", rev = "9806534c9ce6f1b91f7fbd554e6957f4acbdb3ea"}
 ic-agent = { version = "0.41.0", default-features = false, features = ["pem"]}
 sentry = { version = "0.37.0", default-features = false, features = [
     "rustls",

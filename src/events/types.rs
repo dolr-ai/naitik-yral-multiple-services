@@ -1,8 +1,4 @@
-use candid::Principal;
-use serde::{de::Error, Deserialize, Deserializer, Serialize};
-use serde_json::{json, Value};
-use utoipa::ToSchema;
-use yral_metadata_types::{
+use crate::metadata_types::{
     AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, NotificationPayload,
     SendNotificationReq, WebpushConfig, WebpushFcmOptions,
 };
@@ -10,6 +6,10 @@ use crate::metrics::{
     like_video::LikeVideo, sealed_metric::SealedMetric,
     video_duration_watched::VideoDurationWatched, video_watched::VideoWatched,
 };
+use candid::Principal;
+use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use serde_json::{json, Value};
+use utoipa::ToSchema;
 
 use crate::state::AppState;
 
