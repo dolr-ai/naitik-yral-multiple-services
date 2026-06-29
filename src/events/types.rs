@@ -6,7 +6,7 @@ use yral_metadata_types::{
     AndroidConfig, AndroidNotification, ApnsConfig, ApnsFcmOptions, NotificationPayload,
     SendNotificationReq, WebpushConfig, WebpushFcmOptions,
 };
-use yral_metrics::metrics::{
+use crate::metrics::{
     like_video::LikeVideo, sealed_metric::SealedMetric,
     video_duration_watched::VideoDurationWatched, video_watched::VideoWatched,
 };

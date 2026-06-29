@@ -2055,6 +2055,7 @@ dependencies = [
  "hyper-rustls",
  "ic-agent",
  "jsonwebtoken",
+ "k256",
  "log",
  "once_cell",
  "prost",
@@ -2081,11 +2082,9 @@ dependencies = [
  "utoipa",
  "utoipa-axum",
  "utoipa-swagger-ui",
- "yral-identity",
+ "web-time",
  "yral-metadata-client",
  "yral-metadata-types",
- "yral-metrics",
- "yral-types",
 ]
 
 [[package]]
@@ -4207,17 +4206,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "trait-variant"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70977707304198400eb4835a78f6a9f928bf41bba420deb8fdb175cd965d77a7"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
 name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4912,7 +4900,7 @@ dependencies = [
 [[package]]
 name = "yral-identity"
 version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-common.git?branch=master#395030df8b5038775e1a4a3d2af14ca7e4e2ee9b"
+source = "git+https://github.com/dolr-ai/yral-common.git?branch=main#55e7ec1d1cff6ff19b74f45714c21a1cc4fff15d"
 dependencies = [
  "candid",
  "ic-agent",
@@ -4924,7 +4912,7 @@ dependencies = [
 [[package]]
 name = "yral-metadata-client"
 version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=master#c8db8ef3163646ba033808c1d8abb7586203bd43"
+source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=main#2afc84cee901b1b3909c81b715d21ec799fc1b1c"
 dependencies = [
  "ic-agent",
  "reqwest",
@@ -4936,7 +4924,7 @@ dependencies = [
 [[package]]
 name = "yral-metadata-types"
 version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=master#c8db8ef3163646ba033808c1d8abb7586203bd43"
+source = "git+https://github.com/dolr-ai/yral-metadata.git?branch=main#2afc84cee901b1b3909c81b715d21ec799fc1b1c"
 dependencies = [
  "candid",
  "chrono",
@@ -4946,34 +4934,6 @@ dependencies = [
  "utoipa",
  "utoipa-swagger-ui",
  "yral-identity",
-]
-
-[[package]]
-name = "yral-metrics"
-version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-common.git?branch=master#395030df8b5038775e1a4a3d2af14ca7e4e2ee9b"
-dependencies = [
- "candid",
- "log",
- "reqwest",
- "serde",
- "serde_with",
- "trait-variant",
- "utoipa",
- "web-time",
-]
-
-[[package]]
-name = "yral-types"
-version = "0.1.0"
-source = "git+https://github.com/dolr-ai/yral-common.git?branch=master#395030df8b5038775e1a4a3d2af14ca7e4e2ee9b"
-dependencies = [
- "ic-agent",
- "k256",
- "serde",
- "serde_json",
- "utoipa",
- "utoipa-swagger-ui",
 ]
 
 [[package]]

@@ -5,7 +5,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use utoipa::ToSchema;
-use yral_metrics::metrics::sealed_metric::SealedMetric;
+use crate::metrics::sealed_metric::SealedMetric;
 
 use crate::events::event::WareHouseEvent;
 use crate::events::push_notification::dispatch_notif;
@@ -13,7 +13,7 @@ use crate::{
     events::{event::Event, types::AnalyticsEvent},
     state::AppState,
 };
-pub use yral_types::delegated_identity::DelegatedIdentityWire;
+pub use crate::common_types::delegated_identity::DelegatedIdentityWire;
 
 pub mod event;
 pub mod push_notification;

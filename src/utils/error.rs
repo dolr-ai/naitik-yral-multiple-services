@@ -201,8 +201,8 @@ pub struct IdentityErrorDetail {
     pub message: String,
 }
 
-impl From<yral_identity::Error> for IdentityErrorDetail {
-    fn from(e: yral_identity::Error) -> Self {
+impl From<crate::common_types::error::Error> for IdentityErrorDetail {
+    fn from(e: crate::common_types::error::Error) -> Self {
         Self {
             message: e.to_string(),
         }

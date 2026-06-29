@@ -1,9 +1,11 @@
 pub mod api;
 pub mod auth;
 pub mod config;
+pub mod common_types;
 pub mod consts;
 pub mod dragonfly;
 pub mod events;
+pub mod metrics;
 pub mod middleware;
 pub mod state;
 pub mod types;
