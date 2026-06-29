@@ -8,10 +8,10 @@ pub use crate::metadata_client::error::Result;
 use crate::metadata_types::{
     error::MetadataApiError, ApiResult, BulkGetUserMetadataReq, BulkGetUserMetadataRes, BulkUsers,
     CanisterToPrincipalReq, CanisterToPrincipalRes, DeviceRegistrationToken, GetUserMetadataRes,
-    GetUserMetadataV2Res, RegisterDeviceReq, RegisterDeviceRes,
-    SetUserEmailMetadataReq, SetUserEmailReq, SetUserMetadataReq, SetUserMetadataReqMetadata,
-    SetUserMetadataRes, SetUserSignedInMetadataReq, UnregisterDeviceReq, UnregisterDeviceRes,
-    UserMetadata, UserMetadataV2,
+    GetUserMetadataV2Res, RegisterDeviceReq, RegisterDeviceRes, SetUserEmailMetadataReq,
+    SetUserEmailReq, SetUserMetadataReq, SetUserMetadataReqMetadata, SetUserMetadataRes,
+    SetUserSignedInMetadataReq, UnregisterDeviceReq, UnregisterDeviceRes, UserMetadata,
+    UserMetadataV2,
 };
 use crate::yral_identity::ic_agent::sign_message;
 use ic_agent::{export::Principal, Identity};
