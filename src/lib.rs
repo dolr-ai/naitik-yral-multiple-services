@@ -4,10 +4,14 @@ pub mod config;
 pub mod consts;
 pub mod dragonfly;
 pub mod events;
+pub mod metadata_client;
+pub mod metadata_types;
+pub mod metrics;
 pub mod middleware;
 pub mod state;
 pub mod types;
 pub mod utils;
+pub mod yral_identity;
 
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
