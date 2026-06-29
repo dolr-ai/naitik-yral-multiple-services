@@ -8,7 +8,7 @@ pub use crate::metadata_client::error::Result;
 use crate::metadata_types::{
     error::MetadataApiError, ApiResult, BulkGetUserMetadataReq, BulkGetUserMetadataRes, BulkUsers,
     CanisterToPrincipalReq, CanisterToPrincipalRes, DeviceRegistrationToken, GetUserMetadataRes,
-    GetUserMetadataV2Res, NotificationKey, RegisterDeviceReq, RegisterDeviceRes,
+    GetUserMetadataV2Res, RegisterDeviceReq, RegisterDeviceRes,
     SetUserEmailMetadataReq, SetUserEmailReq, SetUserMetadataReq, SetUserMetadataReqMetadata,
     SetUserMetadataRes, SetUserSignedInMetadataReq, UnregisterDeviceReq, UnregisterDeviceRes,
     UserMetadata, UserMetadataV2,
