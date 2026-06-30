@@ -899,9 +899,10 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
-                                "mutable-content": 1,
                             },
-                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                            "data": {
+                               "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                            }
                         })),
                         ..Default::default()
                     }),
@@ -983,9 +984,10 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
-                                "mutable-content": 1,
                             },
-                            "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                            "data": {
+                                "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                            }
                         })),
                         ..Default::default()
                     }),
@@ -1119,9 +1121,8 @@ impl EventPayload {
                                     "body": body,
                                 },
                                 "sound": "default",
-                                "mutable-content": 1,
                             },
-                            "url": profile_url
+                            "data": { "url": profile_url }
                         })),
                         ..Default::default()
                     }),
@@ -1194,9 +1195,8 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
-                                "mutable-content": 1,
                             },
-                            "url": video_url
+                            "data": { "url": video_url }
                         })),
                         ..Default::default()
                     }),
@@ -1263,9 +1263,8 @@ impl EventPayload {
                                     "body": body.to_string(),
                                 },
                                 "sound": "default",
-                                "mutable-content": 1,
                             },
-                            "url": "https://yral.com"
+                            "data": { "url": "https://yral.com" }
                         })),
                         ..Default::default()
                     }),
