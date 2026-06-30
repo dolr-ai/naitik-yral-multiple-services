@@ -1417,9 +1417,8 @@ fn test_data_payload_serialization() {
                         "body": "test".to_string(),
                     },
                     "sound": "default",
-                    "mutable-content": 1,
                 },
-                "url": format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id)
+                "data": { "url": format!("https://yral.com/hot-or-not/{}/{}", payload.canister_id.to_text(), payload.post_id) }
             })),
             ..Default::default()
         }),
