@@ -901,7 +901,7 @@ impl EventPayload {
                                 "sound": "default",
                             },
                             "data": {
-                               "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
+                                "url": format!("https://yral.com/hot-or-not/{}/{}", canister_id.to_text(), payload.post_id)
                             }
                         })),
                         ..Default::default()
@@ -1120,9 +1120,9 @@ impl EventPayload {
                                     "title": title.to_string(),
                                     "body": body,
                                 },
-                                "sound": "default",
+                                "sound": "default"
                             },
-                            "data": { "url": profile_url }
+                            "data": { "url": profile_url },
                         })),
                         ..Default::default()
                     }),
@@ -1194,9 +1194,9 @@ impl EventPayload {
                                     "title": title.to_string(),
                                     "body": body.to_string(),
                                 },
-                                "sound": "default",
+                                "sound": "default"
                             },
-                            "data": { "url": video_url }
+                            "data": { "url": video_url },
                         })),
                         ..Default::default()
                     }),
@@ -1262,9 +1262,9 @@ impl EventPayload {
                                     "title": title.to_string(),
                                     "body": body.to_string(),
                                 },
-                                "sound": "default",
+                                "sound": "default"
                             },
-                            "data": { "url": "https://yral.com" }
+                            "data": { "url": "https://yral.com" },
                         })),
                         ..Default::default()
                     }),
