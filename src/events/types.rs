@@ -696,6 +696,20 @@ pub struct VideoApprovalPayload {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NewAIInfluencerMsgPayload {
+    #[serde(rename = "user_id")]
+    pub user_id: Principal,
+    #[serde(rename = "influencer_name")]
+    pub influencer_name: String,
+    #[serde(rename = "message_content")]
+    pub message_content: String,
+    #[serde(rename = "conversation_id")]
+    pub conversation_id: String,
+    #[serde(rename = "influencer_id")]
+    pub influencer_id: String
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum EventPayload {
     VideoDurationWatched(VideoDurationWatchedPayloadV2),
@@ -729,6 +743,7 @@ pub enum EventPayload {
     FollowUser(FollowUserPayload),
     VideoApproved(VideoApprovalPayload),
     VideoDisapproved(VideoApprovalPayload),
+    NewAIInfluencerMsgPayload(NewAIInfluencerMsgPayload),
 }
 
 fn serialize_video_upload_successful<S>(
@@ -1270,6 +1285,34 @@ impl EventPayload {
                         ..Default::default()
                     }),
                     ..Default::default()
+                };
+
+                app_state
+                    .notification_client
+                    .send_notification(notif_payload, payload.user_id)
+                    .await;
+            }
+
+            EventPayload::NewAIInfluencerMsgPayload(payload) => {
+                let title = format!("New message from {}", payload.influencer_name);
+                let body = payload.message_content.clone();
+
+                let notif_payload = SendNotificationReq {
+                    notification: Some(NotificationPayload {
+                        title: Some(title.to_string()),
+                        body: Some(body.to_string()),
+                        image: Some(
+                            "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                        ),
+                    }),
+                    data: Some(json!({
+                        "type": "new_ai_influencer_msg",
+                        "conversation_id": payload.conversation_id,
+                        "influencer_id": payload.influencer_id
+                    })),
+                    android: None,
+                    webpush: None,
+                    apns: None,
                 };
 
                 app_state
