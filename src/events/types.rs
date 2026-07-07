@@ -1295,24 +1295,68 @@ impl EventPayload {
 
             EventPayload::NewAIInfluencerMsgPayload(payload) => {
                 let title = format!("New message from {}", payload.influencer_name);
-                let body = payload.message_content.clone();
+                let body = format!("{}: {}", payload.influencer_name, payload.message_content);
+
+                log::debug!(
+                    "Sending new message notification to user {} from {}",
+                    payload.user_id,
+                    payload
+                        .influencer_name
+                );
 
                 let notif_payload = SendNotificationReq {
                     notification: Some(NotificationPayload {
                         title: Some(title.to_string()),
-                        body: Some(body.to_string()),
+                        body: Some(body.clone()),
                         image: Some(
                             "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
                         ),
                     }),
                     data: Some(json!({
-                        "type": "new_ai_influencer_msg",
-                        "conversation_id": payload.conversation_id,
-                        "influencer_id": payload.influencer_id
+                        "payload": serde_json::to_string(self).unwrap()
                     })),
-                    android: None,
-                    webpush: None,
-                    apns: None,
+                    android: Some(AndroidConfig {
+                        notification: Some(AndroidNotification {
+                            icon: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    webpush: Some(WebpushConfig {
+                        fcm_options: Some(WebpushFcmOptions {
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    apns: Some(ApnsConfig {
+                        headers: Some(json!({
+                            "apns-push-type": "alert",
+                            "apns-priority": "10",
+                        })),
+                        fcm_options: Some(ApnsFcmOptions {
+                            image: Some(
+                                "https://yral.com/img/yral/android-chrome-384x384.png".to_string(),
+                            ),
+                            ..Default::default()
+                        }),
+                        payload: Some(json!({
+                            "aps": {
+                                "alert": {
+                                    "title": title.to_string(),
+                                    "body": body,
+                                },
+                                "sound": "default",
+                                "mutable-content": 1,
+                            },
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
                 };
 
                 app_state
