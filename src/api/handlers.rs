@@ -50,7 +50,7 @@ pub async fn healthz() -> axum::response::Response {
 
 #[utoipa::path(
     post,
-    path = "/api/v1/events/new-ai-influencer-message",
+    path = "/api/v1/notification/new-ai-influencer-message",
     request_body = NewAIInfluencerMsgPayload,
     tag = "events",
     responses(
