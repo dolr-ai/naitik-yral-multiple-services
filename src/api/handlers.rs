@@ -94,5 +94,5 @@ pub async fn new_ai_influencer_message(
     let event = EventPayload::NewAIInfluencerMsgPayload(payload);
     event.send_notification(&state).await;
 
-    Ok((StatusCode::OK, "Event processed".to_string()))
+    Ok((StatusCode::OK, "AI Influencer Chat Notification Processed".to_string()))
 }
