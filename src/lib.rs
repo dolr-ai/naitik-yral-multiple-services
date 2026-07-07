@@ -43,9 +43,11 @@ impl Modify for BearerAuth {
         events::post_event_v2,
         events::handle_bulk_events,
         events::handle_bulk_events_v2,
+        api::handlers::new_ai_influencer_message,
     ),
     components(
-        schemas()
+        schemas(),
+        schemas(events::types::NewAIInfluencerMsgPayload)
     ),
     modifiers(&BearerAuth),
     tags(

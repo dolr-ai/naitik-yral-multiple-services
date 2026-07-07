@@ -53,6 +53,7 @@ async fn main_impl() -> Result<()> {
         .routes(routes!(handle_bulk_events))
         .routes(routes!(post_event_v2))
         .routes(routes!(handle_bulk_events_v2))
+        .routes(routes!(new_ai_influencer_message))
         .with_state(state.clone());
 
     let (router, api) = router.split_for_parts();

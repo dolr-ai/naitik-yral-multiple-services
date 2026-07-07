@@ -695,9 +695,10 @@ pub struct VideoApprovalPayload {
     pub user_id: Principal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct NewAIInfluencerMsgPayload {
     #[serde(rename = "user_id")]
+    #[schema(value_type = String)]
     pub user_id: Principal,
     #[serde(rename = "influencer_name")]
     pub influencer_name: String,
