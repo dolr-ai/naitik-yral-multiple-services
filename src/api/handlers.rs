@@ -1,12 +1,10 @@
+use crate::events::types::{EventPayload, NewAIInfluencerMsgPayload};
 use crate::state::AppState;
 use crate::utils::error::{Error, NullOk, Result};
 use crate::{types::ApiResult, utils::error::ErrorWrapper};
-use crate::events::types::{EventPayload, NewAIInfluencerMsgPayload};
 use axum::{extract::State, http::HeaderMap, response::IntoResponse, Json};
 use reqwest::StatusCode;
 use std::sync::Arc;
-
-
 
 #[utoipa::path(
     get,
@@ -88,11 +86,18 @@ pub async fn new_ai_influencer_message(
     let token = token.trim_start_matches("Bearer ");
 
     // Verify JWT token
-    crate::auth::verify_token(token, &state.jwt_details)
-        .map_err(|_| (StatusCode::UNAUTHORIZED, "Invalid authentication token".to_string()))?;
+    crate::auth::verify_token(token, &state.jwt_details).map_err(|_| {
+        (
+            StatusCode::UNAUTHORIZED,
+            "Invalid authentication token".to_string(),
+        )
+    })?;
 
     let event = EventPayload::NewAIInfluencerMsgPayload(payload);
     event.send_notification(&state).await;
 
-    Ok((StatusCode::OK, "AI Influencer Chat Notification Processed".to_string()))
+    Ok((
+        StatusCode::OK,
+        "AI Influencer Chat Notification Processed".to_string(),
+    ))
 }

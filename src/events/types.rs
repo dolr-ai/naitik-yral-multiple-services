@@ -707,7 +707,7 @@ pub struct NewAIInfluencerMsgPayload {
     #[serde(rename = "conversation_id")]
     pub conversation_id: String,
     #[serde(rename = "influencer_id")]
-    pub influencer_id: String
+    pub influencer_id: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1301,8 +1301,7 @@ impl EventPayload {
                 log::debug!(
                     "Sending new message notification to user {} from {}",
                     payload.user_id,
-                    payload
-                        .influencer_name
+                    payload.influencer_name
                 );
 
                 let notif_payload = SendNotificationReq {
