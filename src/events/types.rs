@@ -1437,6 +1437,9 @@ pub fn deserialize_event_payload(
         "video_disapproved" => Ok(EventPayload::VideoDisapproved(serde_json::from_value(
             value,
         )?)),
+        "new_ai_influencer_message" => Ok(EventPayload::NewAIInfluencerMsgPayload(
+            serde_json::from_value(value)?,
+        )),
         _ => Err(serde_json::Error::unknown_field(event_name, &[])),
     }
 }
