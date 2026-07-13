@@ -744,6 +744,7 @@ pub enum EventPayload {
     FollowUser(FollowUserPayload),
     VideoApproved(VideoApprovalPayload),
     VideoDisapproved(VideoApprovalPayload),
+    #[serde(rename = "new_ai_influencer_message")]
     NewAIInfluencerMsgPayload(NewAIInfluencerMsgPayload),
 }
 
@@ -1298,6 +1299,10 @@ impl EventPayload {
                 let title = format!("New message from {}", payload.influencer_name);
                 let body = format!("{}: {}", payload.influencer_name, payload.message_content);
 
+                let chat_url = format!(
+                    "https://yral.com/influencer/{}",
+                    payload.influencer_id
+                );
                 log::debug!(
                     "Sending new message notification to user {} from {}",
                     payload.user_id,
@@ -1329,6 +1334,7 @@ impl EventPayload {
                     }),
                     webpush: Some(WebpushConfig {
                         fcm_options: Some(WebpushFcmOptions {
+                            link: Some(chat_url.clone()),
                             ..Default::default()
                         }),
                         ..Default::default()
@@ -1353,6 +1359,7 @@ impl EventPayload {
                                 "sound": "default",
                                 "mutable-content": 1,
                             },
+                            "url": chat_url
                         })),
                         ..Default::default()
                     }),
@@ -1437,9 +1444,6 @@ pub fn deserialize_event_payload(
         "video_disapproved" => Ok(EventPayload::VideoDisapproved(serde_json::from_value(
             value,
         )?)),
-        "new_ai_influencer_message" => Ok(EventPayload::NewAIInfluencerMsgPayload(
-            serde_json::from_value(value)?,
-        )),
         _ => Err(serde_json::Error::unknown_field(event_name, &[])),
     }
 }
