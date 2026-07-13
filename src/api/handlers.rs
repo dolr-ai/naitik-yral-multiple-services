@@ -1,4 +1,4 @@
-use crate::events::types::{EventPayload, NewAIInfluencerMsgPayload};
+use crate::events::types::NewAIInfluencerMsgPayload;
 use crate::state::AppState;
 use crate::utils::error::{Error, NullOk, Result};
 use crate::{types::ApiResult, utils::error::ErrorWrapper};
