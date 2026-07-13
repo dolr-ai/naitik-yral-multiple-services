@@ -1299,10 +1299,7 @@ impl EventPayload {
                 let title = format!("New message from {}", payload.influencer_name);
                 let body = format!("{}: {}", payload.influencer_name, payload.message_content);
 
-                let chat_url = format!(
-                    "https://yral.com/influencer/{}",
-                    payload.influencer_id
-                );
+                let chat_url = format!("https://yral.com/influencer/{}", payload.influencer_id);
                 log::debug!(
                     "Sending new message notification to user {} from {}",
                     payload.user_id,
