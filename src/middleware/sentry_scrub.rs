@@ -149,7 +149,7 @@ fn scrub_breadcrumbs(breadcrumbs: &mut [Breadcrumb]) {
 
 /// Scrub sensitive data from contexts
 fn scrub_contexts(contexts: &mut BTreeMap<String, Context>) {
-    for (_key, context) in contexts.iter_mut() {
+    for context in contexts.values_mut() {
         if let Context::Other(map) = context {
             for (field_key, value) in map.iter_mut() {
                 if SENSITIVE_FIELDS

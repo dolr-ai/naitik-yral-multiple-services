@@ -46,6 +46,7 @@ const NOTIFICATION_EVENTS: &[&str] = &[
     "tournament_ended_winner",
     "reward_earned",
     "follow_user",
+    "new_ai_influencer_message",
 ];
 
 pub async fn dispatch_notif(

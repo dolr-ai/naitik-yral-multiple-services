@@ -1304,6 +1304,11 @@ impl EventPayload {
                     payload.influencer_name
                 );
 
+                let chat_url = format!(
+                    "https://yral.com/chat/{}?influencerName={}",
+                    payload.influencer_id, payload.influencer_name
+                );
+
                 let notif_payload = SendNotificationReq {
                     notification: Some(NotificationPayload {
                         title: Some(title.to_string()),
@@ -1329,6 +1334,7 @@ impl EventPayload {
                     }),
                     webpush: Some(WebpushConfig {
                         fcm_options: Some(WebpushFcmOptions {
+                            link: Some(chat_url.clone()),
                             ..Default::default()
                         }),
                         ..Default::default()
@@ -1353,6 +1359,7 @@ impl EventPayload {
                                 "sound": "default",
                                 "mutable-content": 1,
                             },
+                            "url": chat_url
                         })),
                         ..Default::default()
                     }),
@@ -1437,6 +1444,9 @@ pub fn deserialize_event_payload(
         "video_disapproved" => Ok(EventPayload::VideoDisapproved(serde_json::from_value(
             value,
         )?)),
+        "new_ai_influencer_message" => Ok(EventPayload::NewAIInfluencerMsgPayload(
+            serde_json::from_value(value)?,
+        )),
         _ => Err(serde_json::Error::unknown_field(event_name, &[])),
     }
 }

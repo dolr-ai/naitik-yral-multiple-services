@@ -1,4 +1,4 @@
-use crate::events::types::{EventPayload, NewAIInfluencerMsgPayload};
+use crate::events::types::NewAIInfluencerMsgPayload;
 use crate::state::AppState;
 use crate::utils::error::{Error, NullOk, Result};
 use crate::{types::ApiResult, utils::error::ErrorWrapper};
@@ -93,8 +93,24 @@ pub async fn new_ai_influencer_message(
         )
     })?;
 
-    let event = EventPayload::NewAIInfluencerMsgPayload(payload);
-    event.send_notification(&state).await;
+    let event_type = "new_ai_influencer_message";
+    let params = serde_json::to_value(&payload).map_err(|e| {
+        log::error!("Failed to serialize payload: {e}");
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to process event".to_string(),
+        )
+    })?;
+
+    if let Err(e) =
+        crate::events::push_notification::dispatch_notif(event_type, params, &state).await
+    {
+        log::error!("Failed to dispatch notification: {e:?}");
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Failed to send notification".to_string(),
+        ));
+    }
 
     Ok((
         StatusCode::OK,
