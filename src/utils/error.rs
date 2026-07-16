@@ -89,9 +89,7 @@ impl From<&Error> for ApiResult<()> {
                 log::warn!("data parsing error {e}");
                 ApiError::DataParseError(e.clone())
             }
-            Error::FirebaseApiErr(e) => {
-                ApiError::FirebaseApiError(e.clone())
-            }
+            Error::FirebaseApiErr(e) => ApiError::FirebaseApiError(e.clone()),
         };
         ApiResult::Err(err)
     }

@@ -1,9 +1,9 @@
 use std::env;
 
-use reqwest::Client;
-use serde_json::json;
 use crate::metadata_types::NotificationKey;
 use crate::metadata_types::SendNotificationReq;
+use reqwest::Client;
+use serde_json::json;
 
 use crate::firebase::Firebase;
 

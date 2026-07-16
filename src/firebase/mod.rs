@@ -1,9 +1,9 @@
 use std::env;
 
+use crate::yral_identity::error::Result;
 use hyper_rustls::{self, HttpsConnector};
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::client::legacy::Client;
-use crate::yral_identity::error::Result;
 use yup_oauth2::{
     authenticator::Authenticator, CustomHyperClientBuilder, ServiceAccountAuthenticator,
 };
