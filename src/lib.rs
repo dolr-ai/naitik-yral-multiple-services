@@ -12,6 +12,8 @@ pub mod state;
 pub mod types;
 pub mod utils;
 pub mod yral_identity;
+pub mod notifications;
+pub mod firebase;
 
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
