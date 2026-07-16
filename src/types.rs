@@ -41,6 +41,9 @@ pub enum ApiError {
     SqlxError,
     #[error("data parsing error: {0}")]
     DataParseError(String),
+    #[error("firebase api error: {0}")]
+    FirebaseApiError(String),
 }
 
 pub type ApiResult<T> = Result<T, ApiError>;
+ 

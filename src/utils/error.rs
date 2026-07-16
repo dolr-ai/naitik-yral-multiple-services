@@ -53,6 +53,8 @@ pub enum Error {
     #[error("data parsing error {0}")]
     #[schema(value_type = String)]
     DataParseError(String),
+    #[error("firebase api error {0}")]
+    FirebaseApiErr(String),
 }
 
 impl From<&Error> for ApiResult<()> {
@@ -87,6 +89,9 @@ impl From<&Error> for ApiResult<()> {
                 log::warn!("data parsing error {e}");
                 ApiError::DataParseError(e.clone())
             }
+            Error::FirebaseApiErr(e) => {
+                ApiError::FirebaseApiError(e.clone())
+            }
         };
         ApiResult::Err(err)
     }
@@ -110,6 +115,7 @@ impl Error {
             | Error::Config(_)
             | Error::Deser(_)
             | Error::Redis(_)
+            | Error::FirebaseApiErr(_)
             | Error::Unknown(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::Jwt(_) | Error::AuthTokenInvalid | Error::AuthTokenMissing => {
                 StatusCode::UNAUTHORIZED

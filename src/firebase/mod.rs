@@ -1,15 +1,16 @@
-pub mod notifications;
-
 use std::env;
+
 use hyper_rustls::{self, HttpsConnector};
 use hyper_util::client::legacy::connect::HttpConnector;
 use hyper_util::client::legacy::Client;
-use crate::yral_identity::Result as IdentityResult;
+use crate::yral_identity::error::Result;
 use yup_oauth2::{
     authenticator::Authenticator, CustomHyperClientBuilder, ServiceAccountAuthenticator,
 };
 
 use crate::utils::error::Error;
+
+pub mod notifications;
 
 #[derive(Clone)]
 pub struct Firebase {
@@ -45,12 +46,12 @@ pub async fn init_auth() -> Result<Authenticator<HttpsConnector<HttpConnector>>,
 }
 
 impl Firebase {
-    pub async fn new() -> IdentityResult<Self> {
+    pub async fn new() -> Result<Self, Error> {
         let auth = init_auth().await?;
         Ok(Self { auth })
     }
 
-    async fn get_access_token(&self, scopes: &[&str]) -> IdentityResult<String> {
+    async fn get_access_token(&self, scopes: &[&str]) -> Result<String, Error> {
         let auth = &self.auth;
         let token = auth
             .token(scopes)
