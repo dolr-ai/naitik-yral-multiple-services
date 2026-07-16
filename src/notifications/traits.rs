@@ -1,12 +1,11 @@
-
 use axum::extract::Path;
 use candid::Principal;
 use redis::RedisResult;
 
-use crate::utils::error::{Error, Result};
 use crate::metadata_types::{
     DeviceRegistrationToken, NotificationKey, SendNotificationReq, UserMetadata,
 };
+use crate::utils::error::{Error, Result};
 use crate::yral_identity::Signature;
 
 // --- FCM Service Trait ---
@@ -123,7 +122,8 @@ pub trait RegisterDeviceRequest: Send + Sync {
         let sig = self
             .signature()
             .ok_or_else(|| Error::Unknown("Signature missing for verification".to_string()))?;
-        let token_msg = crate::yral_identity::msg_builder::Message::try_from(self.registration_token())?;
+        let token_msg =
+            crate::yral_identity::msg_builder::Message::try_from(self.registration_token())?;
         let principal_obj = principal.as_principal().ok_or_else(|| {
             Error::Unknown("Principal object not available for verification".to_string())
         })?;
@@ -147,7 +147,8 @@ pub trait UnregisterDeviceRequest: Send + Sync {
         let sig = self
             .signature()
             .ok_or_else(|| Error::Unknown("Signature missing for verification".to_string()))?;
-        let token_msg = crate::yral_identity::msg_builder::Message::try_from(self.registration_token())?;
+        let token_msg =
+            crate::yral_identity::msg_builder::Message::try_from(self.registration_token())?;
         let principal_obj = principal.as_principal().ok_or_else(|| {
             Error::Unknown("Principal object not available for verification".to_string())
         })?;
