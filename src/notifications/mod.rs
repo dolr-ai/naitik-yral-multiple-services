@@ -9,7 +9,7 @@ use axum::{
     Json,
 };
 use candid::Principal;
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 mod trait_impls;
 pub mod traits;
@@ -217,6 +217,7 @@ async fn recover_notification_key<F: FcmService, M: UserMetadataStore>(
 }
 
 /// Handles the case when trying to create a group that already exists
+#[allow(clippy::too_many_arguments)]
 async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
     fcm_service: &F,
     store: &M,

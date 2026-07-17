@@ -10,13 +10,16 @@ use crate::yral_identity::Signature;
 
 // --- FCM Service Trait ---
 pub trait FcmService: Send + Sync {
+    #[allow(async_fn_in_trait)]
     async fn get_notification_key(&self, notification_key_name: &str) -> Result<String, Error>;
 
+    #[allow(async_fn_in_trait)]
     async fn update_notification_devices(
         &self,
         body: serde_json::Value,
     ) -> Result<Option<String>, Error>;
 
+    #[allow(async_fn_in_trait)]
     async fn send_message_to_group(
         &self,
         notification_key: NotificationKey,
@@ -31,11 +34,13 @@ pub trait FcmService: Send + Sync {
 // and mocks can serialize/deserialize as needed, or we refine this.
 
 pub trait RedisConnection: Send + Sync {
+    #[allow(async_fn_in_trait)]
     async fn hget<F, RV>(&mut self, key: &str, field: F) -> RedisResult<RV>
     where
         F: redis::ToSingleRedisArg + Send + Sync,
         RV: redis::FromRedisValue + Send + Sync;
 
+    #[allow(async_fn_in_trait)]
     async fn hset<K, F, V>(&mut self, key: K, field: F, value: V) -> RedisResult<bool>
     where
         K: redis::ToSingleRedisArg + Send + Sync,
@@ -54,7 +59,9 @@ pub trait RedisConnection: Send + Sync {
 // --- User Metadata Store Trait ---
 // Abstracts fetch/save of user metadata so real DragonflyPool and mocks can both be used.
 pub trait UserMetadataStore: Send + Sync {
+    #[allow(async_fn_in_trait)]
     async fn fetch_user_metadata(&self, key_prefix: &str, user_id: &str) -> Result<UserMetadata>;
+    #[allow(async_fn_in_trait)]
     async fn save_user_metadata(
         &self,
         key_prefix: &str,

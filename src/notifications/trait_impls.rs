@@ -1,4 +1,4 @@
-use redis::{FromRedisValue, RedisResult, ToRedisArgs, ToSingleRedisArg};
+use redis::{FromRedisValue, RedisResult, ToSingleRedisArg};
 use std::sync::Arc;
 
 use crate::{

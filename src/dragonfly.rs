@@ -440,13 +440,13 @@ pub async fn init_dragonfly_redis_store(
 
     let mut builder = SentinelClientBuilder::new(
         conn_addr,
-        SENTINEL_SERVICE_NAME.to_string(),
+        SENTINEL_SERVICE_NAME,
         SentinelServerType::Master,
     )?;
 
     builder = builder.set_client_to_sentinel_certificates(tls_certs.clone());
 
-    builder = builder.set_client_to_redis_username("default".to_string());
+    builder = builder.set_client_to_redis_username("default");
     builder = builder.set_client_to_redis_password(dragonfly_pass);
     builder = builder.set_client_to_redis_certificates(tls_certs.clone());
     builder = builder.set_client_to_redis_tls_mode(redis::TlsMode::Secure);
@@ -504,12 +504,12 @@ pub async fn init_dragonfly_redis_for_test() -> Result<Arc<DragonflyPool>, anyho
 
     let mut builder = SentinelClientBuilder::new(
         conn_addr,
-        SENTINEL_SERVICE_NAME.to_string(),
+        SENTINEL_SERVICE_NAME,
         SentinelServerType::Master,
     )?;
 
     builder = builder.set_client_to_sentinel_certificates(tls_certs.clone());
-    builder = builder.set_client_to_redis_username("default".to_string());
+    builder = builder.set_client_to_redis_username("default");
     builder = builder.set_client_to_redis_password(dragonfly_pass);
     builder = builder.set_client_to_redis_certificates(tls_certs.clone());
     builder = builder.set_client_to_redis_tls_mode(redis::TlsMode::Secure);
