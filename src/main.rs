@@ -54,9 +54,15 @@ async fn main_impl() -> Result<()> {
         .routes(routes!(post_event_v2))
         .routes(routes!(handle_bulk_events_v2))
         .routes(routes!(new_ai_influencer_message))
-        .routes(routes!(naitik_yral_multiple_services::notifications::register_device))
-        .routes(routes!(naitik_yral_multiple_services::notifications::unregister_device))
-        .routes(routes!(naitik_yral_multiple_services::notifications::send_notification))
+        .routes(routes!(
+            naitik_yral_multiple_services::notifications::register_device
+        ))
+        .routes(routes!(
+            naitik_yral_multiple_services::notifications::unregister_device
+        ))
+        .routes(routes!(
+            naitik_yral_multiple_services::notifications::send_notification
+        ))
         .with_state(state.clone());
 
     let (router, api) = router.split_for_parts();

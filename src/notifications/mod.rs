@@ -640,7 +640,6 @@ pub async fn send_notification(
     Path(user_principal): Path<Principal>,
     Json(req): Json<SendNotificationReq>,
 ) -> Result<Json<ApiResult<SendNotificationRes>>> {
-
     let token = headers
         .get("Authorization")
         .ok_or(Error::AuthTokenMissing)?
