@@ -19,7 +19,6 @@ pub const YRAL_METADATA_KEY_PREFIX: &str = "yral-metadata";
 pub const METADATA_FIELD: &str = "metadata";
 const SENTINEL_RECONNECT_DELAY: Duration = Duration::from_secs(1);
 
-
 pub fn format_to_dragonfly_key(key_prefix: &str, key: &str) -> String {
     format!("{key_prefix}:{key}")
 }

@@ -1,3 +1,8 @@
+use crate::metadata_types::{
+    NotificationKey, RegisterDeviceReq, RegisterDeviceRes, SendNotificationReq,
+    SendNotificationRes, UnregisterDeviceReq, UnregisterDeviceRes, UserMetadata,
+};
+use crate::types::{ApiError, ApiResult};
 use axum::{
     extract::{Path, State},
     http::HeaderMap,
@@ -5,30 +10,24 @@ use axum::{
 };
 use candid::Principal;
 use std::{env, sync::Arc};
-use crate::metadata_types::{
-    NotificationKey, RegisterDeviceReq, RegisterDeviceRes,
-    SendNotificationReq, SendNotificationRes, UnregisterDeviceReq, UnregisterDeviceRes,
-    UserMetadata,
-};
-use crate::types::{ApiResult, ApiError};
 
 mod trait_impls;
 pub mod traits;
 
- use crate::{
-    dragonfly::{format_to_dragonfly_key, DragonflyPool, YRAL_METADATA_KEY_PREFIX, METADATA_FIELD},
-    utils::error::{ErrorWrapper, OkWrapper},
+use crate::{
+    dragonfly::{format_to_dragonfly_key, DragonflyPool, METADATA_FIELD, YRAL_METADATA_KEY_PREFIX},
     state::AppState,
     utils::error::{Error, Result},
+    utils::error::{ErrorWrapper, OkWrapper},
 };
 
 use crate::firebase::notifications::utils as firebase_utils;
+use crate::metadata_types::DeviceRegistrationToken;
 use crate::notifications::traits::{
     FcmService, RedisConnection, RegisterDeviceRequest, UnregisterDeviceRequest, UserMetadataStore,
     UserPrincipal,
 };
 use serde::Serialize;
-use crate::metadata_types::DeviceRegistrationToken;
 
 /// Fetches user metadata from Dragonfly/Redis with retry logic
 pub(super) async fn fetch_user_metadata(

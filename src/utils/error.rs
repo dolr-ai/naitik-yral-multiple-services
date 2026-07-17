@@ -553,4 +553,3 @@ impl From<RedisError> for RedisErrorDetail {
         }
     }
 }
-
