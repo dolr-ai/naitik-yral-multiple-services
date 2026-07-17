@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 dotenvy = { version = "0.15.7", optional = true }
-serde = "=1.0.219"
-serde_json = { version = "1.0.143", default-features = false }
+serde = "1.0.219"
+serde_json = { version = "1.0.145", default-features = false }
 thiserror = { version = "2.0.12" }
 reqwest = { version = "0.12", default-features = false, features = [
   "json",
@@ -62,9 +62,9 @@ sentry = { version = "0.37.0", default-features = false, features = [
 ] }
 redis = { version = "1.0.2", features = [
     "tokio-rustls-comp",
-    "tls-rustls-webpki-roots",
     "aio",
-    "json",
+    "ahash",
+    "connection-manager",
     "cluster",
     "cluster-async",
     "acl",

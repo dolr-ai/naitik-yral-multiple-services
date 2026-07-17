@@ -12,10 +12,11 @@ use crate::{
 };
 
 // Corrected import for types crate
-use types::{
-    DeviceRegistrationToken, NotificationKey, RegisterDeviceReq, SendNotificationReq, Signature,
+use crate::metadata_types::{
+    DeviceRegistrationToken, NotificationKey, RegisterDeviceReq, SendNotificationReq,
     UnregisterDeviceReq, UserMetadata,
 };
+use crate::yral_identity::Signature;
 
 // --- Implement FcmService for Firebase ---
 impl FcmService for Firebase {
@@ -103,8 +104,8 @@ impl UnregisterDeviceRequest for UnregisterDeviceReq {
     }
 }
 
-// Note: UserPrincipal is already implemented for ntex::web::types::Path<Principal> and String
-// in traits.rs itself.
+// // Note: UserPrincipal is already implemented for ntex::web::types::Path<Principal> and String
+// // in traits.rs itself.
 
 // --- Implement UserMetadataStore for Arc<DragonflyPool> ---
 impl UserMetadataStore for Arc<DragonflyPool> {
@@ -122,4 +123,4 @@ impl UserMetadataStore for Arc<DragonflyPool> {
     }
 }
 
-// Mock implementations will go into mocks.rs or a new mocks_impl.rs
+// // Mock implementations will go into mocks.rs or a new mocks_impl.rs

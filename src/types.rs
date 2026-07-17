@@ -19,6 +19,12 @@ pub enum ApiError {
     AuthTokenMissing,
     #[error("failed to delete keys (redis)")]
     DeleteKeys,
+    #[error("metadata for principal not found")]
+    MetadataNotFound,
+    #[error("device not found")]
+    DeviceNotFound,
+    #[error("notification key not found")]
+    NotificationKeyNotFound,
     #[error("unknown: {0}")]
     Unknown(String),
     #[error("invalid email: {0}")]
