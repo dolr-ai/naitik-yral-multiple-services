@@ -46,6 +46,9 @@ impl Modify for BearerAuth {
         events::handle_bulk_events,
         events::handle_bulk_events_v2,
         api::handlers::new_ai_influencer_message,
+        notifications::register_device,
+        notifications::unregister_device,
+        notifications::send_notification
     ),
     components(
         schemas(),

@@ -267,7 +267,7 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
 
 #[utoipa::path(
     post,
-    path = "/notifications/{user_principal}",
+    path = "/api/v1/notifications/{user_principal}",
     params(
         ("user_principal" = String, Path, description = "User principal ID")
     ),
@@ -283,8 +283,19 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
 pub async fn register_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
+    headers: HeaderMap,
     Json(req): Json<RegisterDeviceReq>,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
+    let token = headers
+        .get("Authorization")
+        .ok_or(Error::AuthTokenMissing)?
+        .to_str()
+        .map_err(|_| Error::AuthTokenInvalid)?;
+    let token = token.trim_start_matches("Bearer ");
+
+    // Verify JWT token
+    crate::auth::verify_token(token, &state.jwt_details)?;
+
     let principal = user_principal;
 
     crate::sentry_utils::add_user_context(principal, None);
@@ -474,7 +485,7 @@ pub async fn register_device_impl<
 
 #[utoipa::path(
     delete,
-    path = "/notifications/{user_principal}",
+    path = "/api/v1/notifications/{user_principal}",
     params(
         ("user_principal" = String, Path, description = "User principal ID")
     ),
@@ -490,8 +501,19 @@ pub async fn register_device_impl<
 pub async fn unregister_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
+    headers: HeaderMap,
     Json(req): Json<UnregisterDeviceReq>,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
+    let token = headers
+        .get("Authorization")
+        .ok_or(Error::AuthTokenMissing)?
+        .to_str()
+        .map_err(|_| Error::AuthTokenInvalid)?;
+    let token = token.trim_start_matches("Bearer ");
+
+    // Verify JWT token
+    crate::auth::verify_token(token, &state.jwt_details)?;
+
     unregister_device_impl(
         &state.firebase,
         &state.dragonfly_redis_store,
@@ -596,7 +618,7 @@ pub async fn unregister_device_impl<
 
 #[utoipa::path(
     post,
-    path = "/notifications/{user_principal}/send",
+    path = "/api/v1/notifications/{user_principal}/send",
     params(
         ("user_principal" = String, Path, description = "User principal ID")
     ),
@@ -618,6 +640,17 @@ pub async fn send_notification(
     Path(user_principal): Path<Principal>,
     Json(req): Json<SendNotificationReq>,
 ) -> Result<Json<ApiResult<SendNotificationRes>>> {
+
+    let token = headers
+        .get("Authorization")
+        .ok_or(Error::AuthTokenMissing)?
+        .to_str()
+        .map_err(|_| Error::AuthTokenInvalid)?;
+    let token = token.trim_start_matches("Bearer ");
+
+    // Verify JWT token
+    crate::auth::verify_token(token, &state.jwt_details)?;
+
     let principal = user_principal;
 
     crate::sentry_utils::add_user_context(principal, None);
@@ -628,7 +661,6 @@ pub async fn send_notification(
     );
 
     send_notification_impl(
-        Some(&headers),
         &state.firebase,
         &state.dragonfly_redis_store,
         user_principal,
@@ -647,7 +679,6 @@ pub async fn send_notification(
 }
 
 pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: UserPrincipal>(
-    headers: Option<&HeaderMap>,
     fcm_service: &F,
     store: &M,
     user_principal: P,
@@ -655,36 +686,6 @@ pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: User
     key_prefix: &str,
 ) -> Result<Json<ApiResult<SendNotificationRes>>> {
     let user_id_text = user_principal.to_text();
-
-    // Verify API key authorization if headers provided
-    if let Some(actual_headers) = headers {
-        let expected_api_key =
-            env::var("YRAL_METADATA_USER_NOTIFICATION_API_KEY").map_err(|_| {
-                Error::EnvironmentVariableMissing(
-                    "YRAL_METADATA_USER_NOTIFICATION_API_KEY not set".to_string(),
-                )
-            })?;
-
-        let auth_header = actual_headers
-            .get("Authorization")
-            .and_then(|h| h.to_str().ok());
-
-        let provided_token = match auth_header {
-            Some(header) if header.starts_with("Bearer ") => &header[7..],
-            _ => {
-                log::warn!(
-                    "Authorization header missing or malformed for user: {}",
-                    user_id_text
-                );
-                return Ok(Json(Err(ApiError::Unauthorized)));
-            }
-        };
-
-        if provided_token != expected_api_key {
-            log::warn!("Invalid API key provided for user: {}", user_id_text);
-            return Ok(Json(Err(ApiError::Unauthorized)));
-        }
-    }
 
     // Fetch user metadata
     let mut user_metadata = match store.fetch_user_metadata(key_prefix, &user_id_text).await {
