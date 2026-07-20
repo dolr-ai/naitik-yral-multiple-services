@@ -314,13 +314,12 @@ pub async fn register_device(
         YRAL_METADATA_KEY_PREFIX,
     )
     .await
-    .map_err(|e| {
+    .inspect_err(|e| {
         crate::sentry_utils::capture_api_error(
-            &e,
+            e,
             "/notifications/{user_principal}",
             Some(&principal.to_text()),
         );
-        e
     })
 }
 
@@ -668,13 +667,12 @@ pub async fn send_notification(
         YRAL_METADATA_KEY_PREFIX,
     )
     .await
-    .map_err(|e| {
+    .inspect_err(|e| {
         crate::sentry_utils::capture_api_error(
-            &e,
+            e,
             "/notifications/{user_principal}/send",
             Some(&principal.to_text()),
         );
-        e
     })
 }
 
