@@ -4,7 +4,7 @@ use serde_json::Value;
 
 use crate::{events::types::deserialize_event_payload, state::AppState};
 
-const METADATA_SERVER_URL: &str = "https://metadata.yral.com";
+const MULTI_SERVICE_DEFAULT_API_URL: &str = "https://multi-service.naitik.yral.com";
 
 #[derive(Clone)]
 pub struct NotificationClient {
@@ -19,8 +19,8 @@ impl NotificationClient {
     pub async fn send_notification(&self, data: SendNotificationReq, user_id: Principal) {
         let client = reqwest::Client::new();
         let url = format!(
-            "{}/notifications/{}/send",
-            METADATA_SERVER_URL,
+            "{}/api/v1/notifications/{}/send",
+            MULTI_SERVICE_DEFAULT_API_URL,
             user_id.to_text()
         );
 

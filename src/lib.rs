@@ -4,15 +4,18 @@ pub mod config;
 pub mod consts;
 pub mod dragonfly;
 pub mod events;
+pub mod firebase;
 pub mod metadata_client;
 pub mod metadata_types;
 pub mod metrics;
 pub mod middleware;
+pub mod multi_service_client;
+pub mod notifications;
+pub mod sentry_utils;
 pub mod state;
 pub mod types;
 pub mod utils;
 pub mod yral_identity;
-
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 
@@ -44,6 +47,9 @@ impl Modify for BearerAuth {
         events::handle_bulk_events,
         events::handle_bulk_events_v2,
         api::handlers::new_ai_influencer_message,
+        notifications::register_device,
+        notifications::unregister_device,
+        notifications::send_notification
     ),
     components(
         schemas(),

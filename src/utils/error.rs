@@ -25,6 +25,9 @@ pub enum Error {
     #[schema(value_type = SerdeJsonErrorDetail)]
     Deser(#[from] serde_json::Error),
     #[error("{0}")]
+    #[schema(value_type = IdentityErrorDetail)]
+    Identity(#[from] crate::yral_identity::Error),
+    #[error("{0}")]
     #[schema(value_type = RedisErrorDetail)]
     Redis(#[from] RedisError),
     #[error("jwt {0}")]
@@ -53,6 +56,8 @@ pub enum Error {
     #[error("data parsing error {0}")]
     #[schema(value_type = String)]
     DataParseError(String),
+    #[error("firebase api error {0}")]
+    FirebaseApiErr(String),
 }
 
 impl From<&Error> for ApiResult<()> {
@@ -60,32 +65,129 @@ impl From<&Error> for ApiResult<()> {
         let err = match value {
             Error::IO(_) | Error::Config(_) => {
                 log::warn!("internal error {value}");
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Internal error: {}", value),
+                    sentry::Level::Error,
+                );
                 ApiError::Unknown("internal error, reported".into())
+            }
+            Error::Identity(_) => {
+                log::warn!("identity error {value}");
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Invalid signature",
+                    sentry::Level::Warning,
+                );
+                ApiError::InvalidSignature
             }
             Error::Deser(e) => {
                 log::warn!("deserialization error {e}");
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Deserialization error: {}", e),
+                    sentry::Level::Error,
+                );
                 ApiError::Deser
             }
             Error::Redis(e) => {
                 log::warn!("redis error {e}");
+                crate::sentry_utils::add_redis_breadcrumb("error", &e.to_string(), false);
                 ApiError::Redis
             }
-            Error::Jwt(_) => ApiError::Jwt,
-            Error::AuthTokenMissing => ApiError::AuthTokenMissing,
-            Error::AuthTokenInvalid => ApiError::AuthToken,
-            Error::Unknown(e) => ApiError::Unknown(e.clone()),
-            Error::EnvironmentVariable(_) => ApiError::EnvironmentVariable,
-            Error::EnvironmentVariableMissing(_) => ApiError::EnvironmentVariableMissing,
-            Error::InvalidPrincipal(_) => ApiError::InvalidPrincipal,
+            Error::Jwt(_) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "JWT validation failed",
+                    sentry::Level::Warning,
+                );
+                ApiError::Jwt
+            }
+            Error::AuthTokenMissing => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Auth token missing",
+                    sentry::Level::Warning,
+                );
+                ApiError::AuthTokenMissing
+            }
+            Error::AuthTokenInvalid => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Auth token invalid",
+                    sentry::Level::Warning,
+                );
+                ApiError::AuthToken
+            }
+            Error::Unknown(e) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Unknown error: {}", e),
+                    sentry::Level::Error,
+                );
+                ApiError::Unknown(e.clone())
+            }
+            Error::EnvironmentVariable(_) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Environment variable error",
+                    sentry::Level::Error,
+                );
+                ApiError::EnvironmentVariable
+            }
+            Error::EnvironmentVariableMissing(_) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Environment variable missing",
+                    sentry::Level::Error,
+                );
+                ApiError::EnvironmentVariableMissing
+            }
+            Error::InvalidPrincipal(_) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Invalid principal",
+                    sentry::Level::Warning,
+                );
+                ApiError::InvalidPrincipal
+            }
             Error::SwaggerUi(e) => {
                 log::warn!("swagger ui error {e}");
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Swagger UI error: {}", e),
+                    sentry::Level::Error,
+                );
                 ApiError::Unknown(format!("Swagger UI error: {}", e))
             }
-            Error::InvalidUsername => ApiError::InvalidUsername,
-            Error::InvalidEmail(email) => ApiError::InvalidEmail(email.clone()),
+            Error::InvalidUsername => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    "Invalid username",
+                    sentry::Level::Warning,
+                );
+                ApiError::InvalidUsername
+            }
+            Error::InvalidEmail(email) => {
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Invalid email: {}", email),
+                    sentry::Level::Warning,
+                );
+                ApiError::InvalidEmail(email.clone())
+            }
             Error::DataParseError(e) => {
                 log::warn!("data parsing error {e}");
+                crate::sentry_utils::add_operation_breadcrumb(
+                    "error",
+                    &format!("Data parsing error: {}", e),
+                    sentry::Level::Error,
+                );
                 ApiError::DataParseError(e.clone())
+            }
+            Error::FirebaseApiErr(e) => {
+                crate::sentry_utils::add_firebase_breadcrumb("error", e, false);
+                ApiError::FirebaseApiError(e.clone())
             }
         };
         ApiResult::Err(err)
@@ -110,10 +212,12 @@ impl Error {
             | Error::Config(_)
             | Error::Deser(_)
             | Error::Redis(_)
+            | Error::FirebaseApiErr(_)
             | Error::Unknown(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Error::Jwt(_) | Error::AuthTokenInvalid | Error::AuthTokenMissing => {
-                StatusCode::UNAUTHORIZED
-            }
+            Error::Identity(_)
+            | Error::Jwt(_)
+            | Error::AuthTokenInvalid
+            | Error::AuthTokenMissing => StatusCode::UNAUTHORIZED,
             Error::EnvironmentVariable(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::EnvironmentVariableMissing(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Error::InvalidPrincipal(_)

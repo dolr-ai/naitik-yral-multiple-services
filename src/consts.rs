@@ -13,3 +13,5 @@ pub const RECSYS_ENDPOINT: &str =
 
 pub static YRAL_METADATA_URL: Lazy<Url> =
     Lazy::new(|| Url::parse("https://metadata.yral.com/").unwrap());
+
+pub const MULTI_SERVICE_DEFAULT_API_URL: &str = "https://multi-service.naitik.yral.com/";

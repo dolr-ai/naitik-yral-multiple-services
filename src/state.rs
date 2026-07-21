@@ -6,8 +6,9 @@ use crate::dragonfly::{
     get_redis_store_ca_cert, get_redis_store_client_cert, get_redis_store_client_key,
     init_dragonfly_redis_store, DragonflyPool,
 };
+use crate::firebase::Firebase;
 use crate::metadata_client::MetadataClient;
-use crate::utils::error::Result;
+use crate::utils::error::{Error, Result};
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::collections::HashMap;
@@ -24,6 +25,7 @@ pub struct AppState {
     pub recsys_client: crate::utils::recsys_client::RecsysClient,
     pub notification_client: crate::events::push_notification::NotificationClient,
     pub yral_metadata_client: MetadataClient<true>,
+    pub firebase: Firebase,
 }
 
 impl AppState {
@@ -42,9 +44,12 @@ impl AppState {
             jwt_details: crate::auth::init_jwt(app_config)?,
             recsys_client: crate::utils::recsys_client::RecsysClient::new(),
             notification_client: crate::events::push_notification::NotificationClient::new(
-                env::var("YRAL_METADATA_NOTIFICATION_API_KEY").unwrap_or_default(),
+                env::var("NAITIK_MULTI_SERVICE_API_JWT_TOKEN").unwrap_or_default(),
             ),
             yral_metadata_client: init_yral_metadata_client(app_config),
+            firebase: Firebase::new()
+                .await
+                .map_err(|e| Error::FirebaseApiErr(e.to_string()))?,
         })
     }
 

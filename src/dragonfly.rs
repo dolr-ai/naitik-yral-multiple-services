@@ -15,7 +15,8 @@ use tokio::sync::RwLock;
 
 pub const REDIS_SENTINEL_PORT: u16 = 26379;
 pub const SENTINEL_SERVICE_NAME: &str = "mymaster";
-
+pub const YRAL_METADATA_KEY_PREFIX: &str = "yral-metadata";
+pub const METADATA_FIELD: &str = "metadata";
 const SENTINEL_RECONNECT_DELAY: Duration = Duration::from_secs(1);
 
 pub fn format_to_dragonfly_key(key_prefix: &str, key: &str) -> String {
@@ -253,7 +254,7 @@ impl SentinelConnectionManager {
 
         // Log the discovered master for debugging
         let connection_info = client.get_connection_info();
-        let (host, port) = match &connection_info.addr {
+        let (host, port) = match &connection_info.addr() {
             redis::ConnectionAddr::Tcp(h, p) => (h.clone(), *p),
             redis::ConnectionAddr::TcpTls { host, port, .. } => (host.clone(), *port),
             _ => ("unknown".to_string(), 0),
@@ -380,8 +381,8 @@ impl SentinelConnectionManager {
     pub async fn connect(&self) -> std::result::Result<MultiplexedConnection, RedisError> {
         // Configure longer timeouts for TLS connections over network
         let config = AsyncConnectionConfig::new()
-            .set_response_timeout(Duration::from_secs(30))
-            .set_connection_timeout(Duration::from_secs(10));
+            .set_response_timeout(Some(Duration::from_secs(30)))
+            .set_connection_timeout(Some(Duration::from_secs(10)));
 
         // Try with cached master first
         match self.get_master_client().await {
@@ -437,15 +438,12 @@ pub async fn init_dragonfly_redis_store(
     let dragonfly_pass = std::env::var("DRAGONFLY_REDIS_STORE_PASSWORD")
         .expect("DRAGONFLY_REDIS_STORE_PASSWORD environment variable not set");
 
-    let mut builder = SentinelClientBuilder::new(
-        conn_addr,
-        SENTINEL_SERVICE_NAME.to_string(),
-        SentinelServerType::Master,
-    )?;
+    let mut builder =
+        SentinelClientBuilder::new(conn_addr, SENTINEL_SERVICE_NAME, SentinelServerType::Master)?;
 
     builder = builder.set_client_to_sentinel_certificates(tls_certs.clone());
 
-    builder = builder.set_client_to_redis_username("default".to_string());
+    builder = builder.set_client_to_redis_username("default");
     builder = builder.set_client_to_redis_password(dragonfly_pass);
     builder = builder.set_client_to_redis_certificates(tls_certs.clone());
     builder = builder.set_client_to_redis_tls_mode(redis::TlsMode::Secure);
@@ -501,14 +499,11 @@ pub async fn init_dragonfly_redis_for_test() -> Result<Arc<DragonflyPool>, anyho
     let dragonfly_pass = std::env::var("DRAGONFLY_REDIS_STORE_PASSWORD")
         .expect("DRAGONFLY_REDIS_STORE_PASSWORD environment variable not set");
 
-    let mut builder = SentinelClientBuilder::new(
-        conn_addr,
-        SENTINEL_SERVICE_NAME.to_string(),
-        SentinelServerType::Master,
-    )?;
+    let mut builder =
+        SentinelClientBuilder::new(conn_addr, SENTINEL_SERVICE_NAME, SentinelServerType::Master)?;
 
     builder = builder.set_client_to_sentinel_certificates(tls_certs.clone());
-    builder = builder.set_client_to_redis_username("default".to_string());
+    builder = builder.set_client_to_redis_username("default");
     builder = builder.set_client_to_redis_password(dragonfly_pass);
     builder = builder.set_client_to_redis_certificates(tls_certs.clone());
     builder = builder.set_client_to_redis_tls_mode(redis::TlsMode::Secure);

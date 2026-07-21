@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 dotenvy = { version = "0.15.7", optional = true }
-serde = "=1.0.219"
-serde_json = { version = "=1.0.143", default-features = false }
+serde = "1.0.219"
+serde_json = { version = "1.0.145", default-features = false }
 thiserror = { version = "2.0.12" }
 reqwest = { version = "0.12", default-features = false, features = [
   "json",
@@ -39,6 +39,8 @@ serde_with = "3.7.0"
 config = { version = "0.14.0", features = ["toml"] }
 once_cell = "1.19.0"
 web-time = "1.0.0"
+yup-oauth2 = "12.1.0"
+hyper-util = { version = "0.1.10", features = ["client", "client-legacy"] }
 hyper-rustls = { version = "0.27.5", features = [
     "http2",
     "webpki-roots",
@@ -58,11 +60,11 @@ sentry = { version = "0.37.0", default-features = false, features = [
     "release-health",
     "reqwest",
 ] }
-redis = { version = "0.32.7", features = [
+redis = { version = "1.0.2", features = [
     "tokio-rustls-comp",
-    "tls-rustls-webpki-roots",
     "aio",
-    "json",
+    "ahash",
+    "connection-manager",
     "cluster",
     "cluster-async",
     "acl",

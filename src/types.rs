@@ -19,6 +19,12 @@ pub enum ApiError {
     AuthTokenMissing,
     #[error("failed to delete keys (redis)")]
     DeleteKeys,
+    #[error("metadata for principal not found")]
+    MetadataNotFound,
+    #[error("device not found")]
+    DeviceNotFound,
+    #[error("notification key not found")]
+    NotificationKeyNotFound,
     #[error("unknown: {0}")]
     Unknown(String),
     #[error("invalid email: {0}")]
@@ -41,6 +47,8 @@ pub enum ApiError {
     SqlxError,
     #[error("data parsing error: {0}")]
     DataParseError(String),
+    #[error("firebase api error: {0}")]
+    FirebaseApiError(String),
 }
 
 pub type ApiResult<T> = Result<T, ApiError>;
