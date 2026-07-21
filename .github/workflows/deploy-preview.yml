@@ -201,7 +201,7 @@ jobs:
                 {"key": "RECSYS_INTERNAL_CALL_SECRET_KEY", "value": $recsys_internal_call_secret_key, "is_literal": true},
                 {"key": "CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY", "value": $client_notifications_google_service_account_key, "is_literal": true},
                 {"key": "GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID", "value": $google_client_notifications_project_id, "is_literal": true},
-                {"key": "GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID", "value": $google_client_notifications_sender_id, "is_literal": true},
+                {"key": "GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID", "value": $google_client_notifications_sender_id, "is_literal": true}
               ]
             }')
 
