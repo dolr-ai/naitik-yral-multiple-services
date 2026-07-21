@@ -3,10 +3,11 @@ pub mod error;
 pub use crate::consts::MULTI_SERVICE_DEFAULT_API_URL;
 pub use crate::multi_service_client::error::Error;
 
-pub use crate::multi_service_client::error::Result;
 use crate::metadata_types::{
-    error::MetadataApiError, ApiResult, DeviceRegistrationToken, RegisterDeviceReq, RegisterDeviceRes,UnregisterDeviceReq, UnregisterDeviceRes,
+    error::MetadataApiError, ApiResult, DeviceRegistrationToken, RegisterDeviceReq,
+    RegisterDeviceRes, UnregisterDeviceReq, UnregisterDeviceRes,
 };
+pub use crate::multi_service_client::error::Result;
 use crate::yral_identity::ic_agent::sign_message;
 use ic_agent::Identity;
 use reqwest::Url;
