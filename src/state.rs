@@ -44,7 +44,7 @@ impl AppState {
             jwt_details: crate::auth::init_jwt(app_config)?,
             recsys_client: crate::utils::recsys_client::RecsysClient::new(),
             notification_client: crate::events::push_notification::NotificationClient::new(
-                env::var("YRAL_METADATA_NOTIFICATION_API_KEY").unwrap_or_default(),
+                env::var("NAITIK_MULTI_SERVICE_API_JWT_TOKEN").unwrap_or_default(),
             ),
             yral_metadata_client: init_yral_metadata_client(app_config),
             firebase: Firebase::new()

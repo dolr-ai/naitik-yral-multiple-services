@@ -12,6 +12,7 @@ use crate::yral_identity::ic_agent::sign_message;
 use ic_agent::Identity;
 use reqwest::Url;
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct MultiServiceClient<const AUTH: bool> {
     base_url: Url,

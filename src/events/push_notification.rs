@@ -19,7 +19,7 @@ impl NotificationClient {
     pub async fn send_notification(&self, data: SendNotificationReq, user_id: Principal) {
         let client = reqwest::Client::new();
         let url = format!(
-            "{}/notifications/{}/send",
+            "{}/api/v1/notifications/{}/send",
             MULTI_SERVICE_DEFAULT_API_URL,
             user_id.to_text()
         );
