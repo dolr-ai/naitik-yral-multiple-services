@@ -7,6 +7,7 @@ pub mod events;
 pub mod firebase;
 pub mod metadata_client;
 pub mod metadata_types;
+pub mod multi_service_client;
 pub mod metrics;
 pub mod middleware;
 pub mod notifications;
