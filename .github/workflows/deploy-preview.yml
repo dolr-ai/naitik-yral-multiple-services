@@ -185,7 +185,7 @@ jobs:
             --arg yral_metadata_token "$YRAL_METADATA_TOKEN" \
             --arg naitik_multi_service_api_jwt_token "$NAITIK_MULTI_SERVICE_API_JWT_TOKEN" \
             --arg recsys_internal_call_secret_key "$RECSYS_INTERNAL_CALL_SECRET_KEY" \
-            --arg client_notifications_google_service_account_key "$CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY" \
+            --arg client_notifications_google_service_account_key "$(flatten "$CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY")" \
             --arg google_client_notifications_project_id "$GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID" \
             --arg google_client_notifications_sender_id "$GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID" \
             '{
