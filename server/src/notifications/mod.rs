@@ -279,6 +279,9 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
         (status = 401, description = "Unauthorized", body = ErrorWrapper<crate::utils::error::Error>),
         (status = 404, description = "User metadata not found", body = ErrorWrapper<crate::utils::error::Error>),
         (status = 500, description = "Internal server error", body = ErrorWrapper<crate::utils::error::Error>)
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn register_device(
@@ -496,6 +499,9 @@ pub async fn register_device_impl<
         (status = 401, description = "Unauthorized", body = ErrorWrapper<crate::utils::error::Error>),
         (status = 404, description = "User metadata or device not found", body = ErrorWrapper<crate::utils::error::Error>),
         (status = 500, description = "Internal server error", body = ErrorWrapper<crate::utils::error::Error>)
+    ),
+    security(
+        ("bearer_auth" = [])
     )
 )]
 pub async fn unregister_device(
