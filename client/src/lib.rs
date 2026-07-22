@@ -1,15 +1,16 @@
+pub mod consts;
 pub mod error;
 
 pub use crate::consts::MULTI_SERVICE_DEFAULT_API_URL;
-pub use crate::multi_service_client::error::Error;
+pub use crate::error::Error;
 
-use crate::metadata_types::{
+pub use crate::error::Result;
+use ic_agent::Identity;
+use multi_service_types::yral_identity::ic_agent::sign_message;
+use multi_service_types::{
     error::MetadataApiError, ApiResult, DeviceRegistrationToken, RegisterDeviceReq,
     RegisterDeviceRes, UnregisterDeviceReq, UnregisterDeviceRes,
 };
-pub use crate::multi_service_client::error::Result;
-use crate::yral_identity::ic_agent::sign_message;
-use ic_agent::Identity;
 use reqwest::Url;
 
 #[allow(dead_code)]
@@ -88,9 +89,9 @@ impl<const A: bool> MultiServiceClient<A> {
                 .try_into()
                 .map_err(|_| Error::Api(MetadataApiError::AuthTokenMissing))?,
         )?;
-        let sender = identity
-            .sender()
-            .map_err(|_| Error::Identity(crate::yral_identity::error::Error::SenderNotFound))?;
+        let sender = identity.sender().map_err(|_| {
+            Error::Identity(multi_service_types::yral_identity::error::Error::SenderNotFound)
+        })?;
         let api_url = self
             .base_url
             .join("api/v1/notifications/")

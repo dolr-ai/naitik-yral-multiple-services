@@ -6,16 +6,13 @@ pub mod dragonfly;
 pub mod events;
 pub mod firebase;
 pub mod metadata_client;
-pub mod metadata_types;
 pub mod metrics;
 pub mod middleware;
-pub mod multi_service_client;
 pub mod notifications;
 pub mod sentry_utils;
 pub mod state;
 pub mod types;
 pub mod utils;
-pub mod yral_identity;
 use utoipa::openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 

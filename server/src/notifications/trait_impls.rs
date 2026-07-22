@@ -12,11 +12,11 @@ use crate::{
 };
 
 // Corrected import for types crate
-use crate::metadata_types::{
+use multi_service_types::yral_identity::Signature;
+use multi_service_types::{
     DeviceRegistrationToken, NotificationKey, RegisterDeviceReq, SendNotificationReq,
     UnregisterDeviceReq, UserMetadata,
 };
-use crate::yral_identity::Signature;
 
 // --- Implement FcmService for Firebase ---
 impl FcmService for Firebase {

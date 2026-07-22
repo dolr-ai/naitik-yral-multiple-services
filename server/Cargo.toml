@@ -1,0 +1,83 @@
+[package]
+name = "naitik-yral-multiple-services"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+ic-agent.workspace = true
+reqwest.workspace = true
+candid.workspace = true
+utoipa.workspace = true
+web-time.workspace = true
+
+multi_service_types = { path = "../types", package = "naitik-multi-service-types" }
+dotenvy = { version = "0.15.7", optional = true }
+anyhow = "1.0.86"
+chrono = "0.4"
+log = "0.4.27"
+rand = "0.8.5"
+axum = { version = "0.8.0", features = ["macros", "json"] }
+tower = "0.5.2"
+tower-http = { version = "0.6.2", features = ["cors", "trace"] }
+tokio = { version = "1.36.0", features = ["full"] }
+tonic = { version = "0.13.0", features = ["tls-webpki-roots"] }
+sentry-tower = { version = "0.37.0", features = ["axum", "axum-matched-path"] }
+futures = "0.3.30"
+hmac = "0.12"
+hex = "0.4.3"
+sha2 = "0.10"
+k256 = { version = "0.13.4", default-features = false, features = ["jwk"] }
+tracing = "0.1"
+utoipa-axum = "0.2.0"
+utoipa-swagger-ui = { version = "9.0.2", features = ["reqwest", "axum"]}
+rustls = { version = "0.23.26" }
+jsonwebtoken = { version = "9.3.0", features = ["use_pem"] }
+prost = "0.13.5"
+serde_with = "3.7.0"
+config = { version = "0.14.0", features = ["toml"] }
+once_cell = "1.19.0"
+yup-oauth2 = "12.1.0"
+hyper-util = { version = "0.1.10", features = ["client", "client-legacy"] }
+hyper-rustls = { version = "0.27.5", features = [
+    "http2",
+    "webpki-roots",
+    "ring",
+] }
+sentry = { version = "0.37.0", default-features = false, features = [
+    "rustls",
+    "sentry-anyhow",
+    "serde_json",
+    "backtrace",
+    "contexts",
+    "debug-images",
+    "panic",
+    "release-health",
+    "reqwest",
+] }
+redis = { version = "1.0.2", features = [
+    "tokio-rustls-comp",
+    "aio",
+    "ahash",
+    "connection-manager",
+    "cluster",
+    "cluster-async",
+    "acl",
+    "sentinel"
+] }
+sentry-tracing = "0.37.0"
+hostname = "0.4"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+async-trait = "0.1"
+testcontainers = "0.23"
+testcontainers-modules = { version = "0.11", features = ["postgres"] }
+
+[build-dependencies]
+tonic-build = "0.13.0"
+
+
+[[bin]]
+name = "naitik-yral-multiple-services"
+path = "src/main.rs"

@@ -5,7 +5,9 @@ pub use crate::metadata_client::consts::DEFAULT_API_URL;
 pub use crate::metadata_client::error::Error;
 
 pub use crate::metadata_client::error::Result;
-use crate::metadata_types::{
+use ic_agent::{export::Principal, Identity};
+use multi_service_types::yral_identity::ic_agent::sign_message;
+use multi_service_types::{
     error::MetadataApiError, ApiResult, BulkGetUserMetadataReq, BulkGetUserMetadataRes, BulkUsers,
     CanisterToPrincipalReq, CanisterToPrincipalRes, DeviceRegistrationToken, GetUserMetadataRes,
     GetUserMetadataV2Res, RegisterDeviceReq, RegisterDeviceRes, SetUserEmailMetadataReq,
@@ -13,8 +15,6 @@ use crate::metadata_types::{
     SetUserSignedInMetadataReq, UnregisterDeviceReq, UnregisterDeviceRes, UserMetadata,
     UserMetadataV2,
 };
-use crate::yral_identity::ic_agent::sign_message;
-use ic_agent::{export::Principal, Identity};
 use reqwest::{
     header::{HeaderMap, HeaderValue, AUTHORIZATION},
     Url,
@@ -303,9 +303,9 @@ impl<const A: bool> MetadataClient<A> {
                 .try_into()
                 .map_err(|_| Error::Api(MetadataApiError::AuthTokenMissing))?,
         )?;
-        let sender = identity
-            .sender()
-            .map_err(|_| Error::Identity(crate::yral_identity::error::Error::SenderNotFound))?;
+        let sender = identity.sender().map_err(|_| {
+            Error::Identity(multi_service_types::yral_identity::error::Error::SenderNotFound)
+        })?;
         let api_url = self
             .base_url
             .join("notifications/")

@@ -9,11 +9,11 @@ use utoipa::ToSchema;
 
 use crate::events::event::WareHouseEvent;
 use crate::events::push_notification::dispatch_notif;
-pub use crate::yral_identity::delegated_identity::DelegatedIdentityWire;
 use crate::{
     events::{event::Event, types::AnalyticsEvent},
     state::AppState,
 };
+pub use multi_service_types::yral_identity::delegated_identity::DelegatedIdentityWire;
 
 pub mod event;
 pub mod push_notification;
