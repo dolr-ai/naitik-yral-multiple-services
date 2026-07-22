@@ -26,7 +26,7 @@ pub enum Error {
     Deser(#[from] serde_json::Error),
     #[error("{0}")]
     #[schema(value_type = IdentityErrorDetail)]
-    Identity(#[from] crate::yral_identity::Error),
+    Identity(#[from] multi_service_types::yral_identity::Error),
     #[error("{0}")]
     #[schema(value_type = RedisErrorDetail)]
     Redis(#[from] RedisError),
@@ -305,8 +305,8 @@ pub struct IdentityErrorDetail {
     pub message: String,
 }
 
-impl From<crate::yral_identity::error::Error> for IdentityErrorDetail {
-    fn from(e: crate::yral_identity::error::Error) -> Self {
+impl From<multi_service_types::yral_identity::error::Error> for IdentityErrorDetail {
+    fn from(e: multi_service_types::yral_identity::error::Error) -> Self {
         Self {
             message: e.to_string(),
         }

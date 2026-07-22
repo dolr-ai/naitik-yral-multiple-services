@@ -2885,6 +2885,32 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
 
 [[package]]
+name = "naitik-multi-service-client"
+version = "0.1.0"
+dependencies = [
+ "ic-agent",
+ "naitik-multi-service-types",
+ "reqwest",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "naitik-multi-service-types"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "ic-agent",
+ "ic-types",
+ "ic-validator-ingress-message",
+ "k256",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "utoipa",
+ "web-time",
+]
+
+[[package]]
 name = "naitik-yral-multiple-services"
 version = "0.1.0"
 dependencies = [
@@ -2902,11 +2928,10 @@ dependencies = [
  "hyper-rustls",
  "hyper-util",
  "ic-agent",
- "ic-types",
- "ic-validator-ingress-message",
  "jsonwebtoken",
  "k256",
  "log",
+ "naitik-multi-service-types",
  "once_cell",
  "prost",
  "rand 0.8.6",

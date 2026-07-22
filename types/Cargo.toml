@@ -1,0 +1,17 @@
+[package]
+name = "naitik-multi-service-types"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde.workspace = true
+utoipa.workspace = true
+thiserror.workspace = true
+candid.workspace = true
+serde_json.workspace = true
+ic-agent.workspace = true
+web-time.workspace = true
+
+ic-types = { git = "https://github.com/dfinity/ic.git", rev = "9806534c9ce6f1b91f7fbd554e6957f4acbdb3ea"}
+ic-validator-ingress-message = { git = "https://github.com/dfinity/ic.git", default-features = false, rev = "9806534c9ce6f1b91f7fbd554e6957f4acbdb3ea"}
+k256 = { version = "0.13.4", default-features = false, features = ["jwk"] }

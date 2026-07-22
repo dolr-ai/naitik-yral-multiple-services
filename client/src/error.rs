@@ -1,5 +1,5 @@
-use crate::metadata_types::error::MetadataApiError;
-use crate::yral_identity::Error as IdentityError;
+use multi_service_types::error::MetadataApiError;
+use multi_service_types::yral_identity::Error as IdentityError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]

@@ -1,6 +1,7 @@
 pub mod error;
+pub mod yral_identity;
 
-use crate::metadata_types::error::MetadataApiError;
+use crate::error::MetadataApiError;
 use crate::yral_identity::{msg_builder::Message, Error, Signature};
 use candid::Principal;
 use serde::{Deserialize, Serialize};

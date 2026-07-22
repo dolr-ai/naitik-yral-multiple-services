@@ -1,7 +1,7 @@
 use std::env;
 
-use crate::metadata_types::NotificationKey;
-use crate::metadata_types::SendNotificationReq;
+use multi_service_types::NotificationKey;
+use multi_service_types::SendNotificationReq;
 use reqwest::Client;
 use serde_json::json;
 

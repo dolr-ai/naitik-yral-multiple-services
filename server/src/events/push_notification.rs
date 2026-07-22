@@ -1,5 +1,5 @@
-use crate::metadata_types::SendNotificationReq;
 use candid::Principal;
+use multi_service_types::SendNotificationReq;
 use serde_json::Value;
 
 use crate::{events::types::deserialize_event_payload, state::AppState};
