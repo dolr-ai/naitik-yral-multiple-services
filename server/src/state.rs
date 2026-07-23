@@ -26,6 +26,7 @@ pub struct AppState {
     pub notification_client: crate::events::push_notification::NotificationClient,
     pub yral_metadata_client: MetadataClient<true>,
     pub firebase: Firebase,
+    pub firebase_staging: Firebase,
 }
 
 impl AppState {
@@ -33,6 +34,13 @@ impl AppState {
         let redis_store_ca_cert_bytes = get_redis_store_ca_cert()?;
         let redis_store_client_cert_bytes = get_redis_store_client_cert()?;
         let redis_store_client_key_bytes = get_redis_store_client_key()?;
+
+        let prod_sa_key_file = env::var("CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY")
+            .map_err(|e| Error::Unknown(e.to_string()))?;
+
+        let staging_sa_key_file =
+            env::var("STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY")
+                .map_err(|e| Error::Unknown(e.to_string()))?;
 
         Ok(AppState {
             dragonfly_redis_store: init_dragonfly_redis_store(
@@ -47,7 +55,10 @@ impl AppState {
                 env::var("NAITIK_MULTI_SERVICE_API_JWT_TOKEN").unwrap_or_default(),
             ),
             yral_metadata_client: init_yral_metadata_client(app_config),
-            firebase: Firebase::new()
+            firebase: Firebase::new(&prod_sa_key_file, "production")
+                .await
+                .map_err(|e| Error::FirebaseApiErr(e.to_string()))?,
+            firebase_staging: Firebase::new(&staging_sa_key_file, "staging")
                 .await
                 .map_err(|e| Error::FirebaseApiErr(e.to_string()))?,
         })
