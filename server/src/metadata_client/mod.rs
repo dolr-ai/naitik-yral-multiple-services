@@ -284,7 +284,7 @@ impl<const A: bool> MetadataClient<A> {
             .json(&RegisterDeviceReq {
                 registration_token,
                 signature,
-                environment
+                environment,
             })
             .send()
             .await?;
@@ -322,7 +322,7 @@ impl<const A: bool> MetadataClient<A> {
             .json(&UnregisterDeviceReq {
                 registration_token,
                 signature,
-                environment
+                environment,
             })
             .send()
             .await?;

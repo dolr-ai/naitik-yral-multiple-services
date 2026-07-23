@@ -70,7 +70,7 @@ impl<const A: bool> MultiServiceClient<A> {
             .json(&RegisterDeviceReq {
                 registration_token,
                 signature,
-                environment
+                environment,
             })
             .send()
             .await?;
@@ -108,7 +108,7 @@ impl<const A: bool> MultiServiceClient<A> {
             .json(&UnregisterDeviceReq {
                 registration_token,
                 signature,
-                environment
+                environment,
             })
             .send()
             .await?;
