@@ -101,6 +101,9 @@ jobs:
             secret/data/naitik-yral-multiple-services/CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY value | CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY ;
             secret/data/naitik-yral-multiple-services/GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID value | GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID ;
             secret/data/naitik-yral-multiple-services/GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID value | GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID ;
+            secret/data/naitik-yral-multiple-services/STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY value | STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY ;
+            secret/data/naitik-yral-multiple-services/STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID value | STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID ;
+            secret/data/naitik-yral-multiple-services/STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID value | STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID ;
             secret/data/naitik-yral-multiple-services/COOLIFY_TOKEN value | COOLIFY_TOKEN ;
             secret/data/naitik-yral-multiple-services/COOLIFY_PROJECT_UUID value | COOLIFY_PROJECT_UUID ;
             secret/data/naitik-yral-multiple-services/COOLIFY_SERVER_UUID value | COOLIFY_SERVER_UUID ;
@@ -171,6 +174,9 @@ jobs:
           CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY: ${{ env.CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY }}
           GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID: ${{ env.GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID }}
           GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID: ${{ env.GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID }}
+          STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY: ${{ env.STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY }}
+          STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID: ${{ env.STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID }}
+          STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID: ${{ env.STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID }}
         run: |
           APP_UUID="${{ steps.coolify_app.outputs.app_uuid }}"
           flatten() { echo "$1" | tr -d '\n\r'; }
@@ -188,6 +194,9 @@ jobs:
             --arg client_notifications_google_service_account_key "$(flatten "$CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY")" \
             --arg google_client_notifications_project_id "$GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID" \
             --arg google_client_notifications_sender_id "$GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID" \
+            --arg staging_client_notifications_google_service_account_key "$(flatten "$STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY")" \
+            --arg staging_google_client_notifications_project_id "$STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID" \
+            --arg staging_google_client_notifications_sender_id "$STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID" \
             '{
               "data": [
                 {"key": "DRAGONFLY_REDIS_STORE_CA_CERT", "value": $dragonfly_redis_store_ca_cert, "is_multiline": true},
@@ -201,7 +210,10 @@ jobs:
                 {"key": "RECSYS_INTERNAL_CALL_SECRET_KEY", "value": $recsys_internal_call_secret_key, "is_literal": true},
                 {"key": "CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY", "value": $client_notifications_google_service_account_key, "is_literal": true},
                 {"key": "GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID", "value": $google_client_notifications_project_id, "is_literal": true},
-                {"key": "GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID", "value": $google_client_notifications_sender_id, "is_literal": true}
+                {"key": "GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID", "value": $google_client_notifications_sender_id, "is_literal": true},
+                {"key": "STAGING_CLIENT_NOTIFICATIONS_GOOGLE_SERVICE_ACCOUNT_KEY", "value": $staging_client_notifications_google_service_account_key, "is_literal": true},
+                {"key": "STAGING_GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID", "value": $staging_google_client_notifications_project_id, "is_literal": true},
+                {"key": "STAGING_GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID", "value": $staging_google_client_notifications_sender_id, "is_literal": true}
               ]
             }')
 
