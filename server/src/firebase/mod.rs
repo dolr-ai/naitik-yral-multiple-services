@@ -19,7 +19,9 @@ pub struct Firebase {
     project_id: String,
 }
 
-pub async fn init_auth(service_account_key_file: &str) -> Result<Authenticator<HttpsConnector<HttpConnector>>, Error> {
+pub async fn init_auth(
+    service_account_key_file: &str,
+) -> Result<Authenticator<HttpsConnector<HttpConnector>>, Error> {
     // Load your service account key
     let sa_key = yup_oauth2::parse_service_account_key(service_account_key_file)
         .map_err(|e| Error::Unknown(e.to_string()))?;
