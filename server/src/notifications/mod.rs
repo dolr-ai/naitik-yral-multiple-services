@@ -9,7 +9,7 @@ use multi_service_types::{
     NotificationKey, RegisterDeviceReq, RegisterDeviceRes, SendNotificationReq,
     SendNotificationRes, UnregisterDeviceReq, UnregisterDeviceRes, UserMetadata,
 };
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 mod trait_impls;
 pub mod traits;
@@ -563,7 +563,7 @@ pub async fn unregister_device_impl<
     user_principal: P,
     req: Json<Req>,
     key_prefix: &str,
-    environment: String,
+    _environment: String,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
     let request_data = req.0;
     let registration_token_obj = request_data.registration_token();
@@ -697,13 +697,12 @@ pub async fn send_notification(
         YRAL_METADATA_KEY_PREFIX,
     )
     .await
-    .map_err(|e| {
+    .inspect_err(|e| {
         crate::sentry_utils::capture_api_error(
-            &e,
+            e,
             "/notifications/{user_principal}/send",
             Some(&principal.to_text()),
         );
-        e
     })
 }
 

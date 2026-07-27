@@ -1,5 +1,3 @@
-use std::env;
-
 use multi_service_types::NotificationKey;
 use multi_service_types::SendNotificationReq;
 use reqwest::Client;

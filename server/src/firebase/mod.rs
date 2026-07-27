@@ -47,6 +47,7 @@ pub async fn init_auth(
 }
 
 impl Firebase {
+    #[allow(unused_assignments)]
     pub async fn new(service_account_key: &str, environment: &str) -> Result<Self, Error> {
         let auth = init_auth(service_account_key).await?;
         let mut project_id = String::new();
