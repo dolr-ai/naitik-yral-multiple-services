@@ -710,31 +710,84 @@ pub async fn send_notification(
         sentry::Level::Info,
     );
 
-    send_notification_impl(
+    send_notification_to_all_environments(
         &state.firebase,
+        &state.firebase_staging,
         &state.dragonfly_redis_store,
         user_principal,
-        Json(req),
+        Json(req.clone()),
         YRAL_METADATA_KEY_PREFIX,
     )
     .await
-    .inspect_err(|e| {
+    .map_err(|e| {
         crate::sentry_utils::capture_api_error(
-            e,
+            &e,
             "/notifications/{user_principal}/send",
             Some(&principal.to_text()),
         );
+        e
     })
 }
 
-pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: UserPrincipal>(
-    fcm_service: &F,
+pub async fn send_notification_to_all_environments<
+    F: FcmService,
+    M: UserMetadataStore,
+    P: UserPrincipal,
+>(
+    fcm_prod: &F,
+    fcm_staging: &F,
     store: &M,
     user_principal: P,
     req: Json<SendNotificationReq>,
     key_prefix: &str,
 ) -> Result<Json<ApiResult<SendNotificationRes>>> {
-    let user_id_text = user_principal.to_text();
+    let user_principal_text = user_principal.to_text();
+    let prod_result = send_notification_prod_impl(
+        fcm_prod,
+        store,
+        user_principal_text.clone(),
+        req.clone(),
+        key_prefix,
+    )
+    .await;
+
+    let staging_result = send_notification_staging_impl(
+        fcm_staging,
+        store,
+        user_principal_text,
+        req,
+        key_prefix,
+    )
+    .await;
+
+    // Log results for both environments
+    match prod_result {
+        Ok(_) => log::info!("Successfully sent notification in production environment"),
+        Err(e) => log::error!(
+            "Failed to send notification in production environment: {:?}",
+            e
+        ),
+    }
+
+    match staging_result {
+        Ok(_) => log::info!("Successfully sent notification in staging environment"),
+        Err(e) => log::error!(
+            "Failed to send notification in staging environment: {:?}",
+            e
+        ),
+    }
+
+    Ok(Json(Ok(())))
+}
+
+pub async fn send_notification_prod_impl<F: FcmService, M: UserMetadataStore>(
+    fcm_service: &F,
+    store: &M,
+    user_principal: String,
+    req: Json<SendNotificationReq>,
+    key_prefix: &str,
+) -> Result<Json<ApiResult<SendNotificationRes>>> {
+    let user_id_text = user_principal.clone();
 
     // Fetch user metadata
     let mut user_metadata = match store.fetch_user_metadata(key_prefix, &user_id_text).await {
@@ -766,6 +819,71 @@ pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: User
             );
             // Clear stale notification key so user can re-register
             user_metadata.notification_key = None;
+            if let Err(save_err) = store
+                .save_user_metadata(key_prefix, &user_id_text, &user_metadata)
+                .await
+            {
+                log::error!(
+                    "Failed to clear stale notification_key for user {}: {:?}",
+                    user_id_text,
+                    save_err
+                );
+            }
+            Ok(Json(Err(ApiError::NotificationKeyNotFound)))
+        }
+        Err(e) => Err(e),
+    }
+}
+
+pub async fn send_notification_staging_impl<F: FcmService, M: UserMetadataStore>(
+    fcm_service: &F,
+    store: &M,
+    user_principal: String,
+    req: Json<SendNotificationReq>,
+    key_prefix: &str,
+) -> Result<Json<ApiResult<SendNotificationRes>>> {
+    let user_id_text = user_principal.clone();
+
+    // Fetch user metadata
+    let mut user_metadata = match store.fetch_user_metadata(key_prefix, &user_id_text).await {
+        Ok(metadata) => metadata,
+        Err(_) => return Ok(Json(Err(ApiError::MetadataNotFound))),
+    };
+
+    // Get notification key
+    let Some(notification_key) = user_metadata.staging_notification_key.clone() else {
+        log::warn!("Notification key not found for user: {}", user_id_text);
+        return Ok(Json(Err(ApiError::NotificationKeyNotFound)));
+    };
+
+    log::info!(
+        "Attempting to send staging push to group key '{}' with payload: {:?}",
+        notification_key.key,
+        req.0
+    );
+
+    // Send notification
+    match fcm_service
+        .send_message_to_group(notification_key.clone(), req.0)
+        .await
+    {
+        Ok(()) => {
+            log::info!(
+                "Successfully dispatched staging notification for user {} to group {}",
+                user_id_text,
+                notification_key.key
+            );
+            Ok(Json(Ok(())))
+        }
+        Err(Error::FirebaseApiErr(ref err_text))
+            if err_text.contains("UNREGISTERED") || err_text.contains("not found") =>
+        {
+            log::warn!(
+                "Notification key is stale for user: {}. Clearing notification_key from metadata. Error: {}",
+                user_id_text, err_text
+            );
+            // Clear stale notification key so user can re-register
+            user_metadata.staging_notification_key = None;
             if let Err(save_err) = store
                 .save_user_metadata(key_prefix, &user_id_text, &user_metadata)
                 .await
