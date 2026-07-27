@@ -95,8 +95,7 @@ impl Firebase {
             .header("Authorization", format!("Bearer {}", firebase_token))
             .header(
                 "project_id",
-                env::var("GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID")
-                    .map_err(|e| Error::Unknown(e.to_string()))?,
+                &self.sender_id,
             )
             .header("access_token_auth", "true")
             .header("Content-Type", "application/json")
@@ -167,8 +166,7 @@ impl Firebase {
             .header("Authorization", format!("Bearer {}", firebase_token))
             .header(
                 "project_id",
-                env::var("GOOGLE_CLIENT_NOTIFICATIONS_SENDER_ID")
-                    .map_err(|e| Error::Unknown(e.to_string()))?,
+                &self.sender_id,
             )
             .header("access_token_auth", "true")
             .json(&body)
@@ -238,16 +236,16 @@ impl Firebase {
         }: SendNotificationReq,
     ) -> Result<()> {
         let client = Client::new();
-        let project_id_string =
-            env::var("GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID").map_err(|e| {
-                Error::Unknown(format!(
-                    "Missing GOOGLE_CLIENT_NOTIFICATIONS_PROJECT_ID: {}",
-                    e
-                ))
-            })?;
+        
+        log::debug!(
+            "[send_message_to_group] Using project_id: {}, sender_id: {}",
+            self.project_id,
+            self.sender_id
+        );
+
         let url = format!(
             "https://fcm.googleapis.com/v1/projects/{}/messages:send",
-            project_id_string
+            &self.project_id.clone()
         );
 
         log::info!(
