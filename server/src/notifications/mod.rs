@@ -326,7 +326,6 @@ pub async fn register_device(
     Path(user_principal): Path<Principal>,
     Json(req): Json<RegisterDeviceReq>,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
-
     let principal = user_principal;
 
     crate::sentry_utils::add_user_context(principal, None);
@@ -540,7 +539,6 @@ pub async fn unregister_device(
     Path(user_principal): Path<Principal>,
     Json(req): Json<UnregisterDeviceReq>,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
-
     let environment = req.environment.clone();
 
     unregister_device_impl(
@@ -731,14 +729,9 @@ pub async fn send_notification_to_all_environments<
     )
     .await;
 
-    let staging_result = send_notification_staging_impl(
-        fcm_staging,
-        store,
-        user_principal_text,
-        req,
-        key_prefix,
-    )
-    .await;
+    let staging_result =
+        send_notification_staging_impl(fcm_staging, store, user_principal_text, req, key_prefix)
+            .await;
 
     // Log results for both environments
     match prod_result {
