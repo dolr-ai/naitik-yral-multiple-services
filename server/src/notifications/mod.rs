@@ -125,7 +125,7 @@ fn update_notification_key_metadata(
                     registration_tokens: vec![registration_token],
                 });
             }
-        } 
+        }
     } else {
         match user_metadata.staging_notification_key.as_mut() {
             Some(meta) => {
@@ -146,7 +146,7 @@ fn update_notification_key_metadata(
                 });
             }
         }
-    } 
+    }
 }
 
 /// Handles adding a device to an existing notification group
@@ -209,7 +209,7 @@ async fn recover_notification_key<F: FcmService, M: UserMetadataStore>(
     user_metadata: &mut UserMetadata,
     key_prefix: &str,
     user_id_text: &str,
-    environment: &str
+    environment: &str,
 ) -> Result<String> {
     // Try to extract from error response first, otherwise GET from FCM
     let fetched_key = fcm_service
@@ -234,7 +234,7 @@ async fn recover_notification_key<F: FcmService, M: UserMetadataStore>(
                 });
             }
         }
-     } else {
+    } else {
         match user_metadata.staging_notification_key.as_mut() {
             Some(nk) => {
                 nk.key = fetched_key.clone();
@@ -265,7 +265,7 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
     user_metadata: &mut UserMetadata,
     key_prefix: &str,
     user_id_text: &str,
-    environment: &str
+    environment: &str,
 ) -> Result<String> {
     // Try to extract notification_key from the error response JSON
     let existing_key = serde_json::from_str::<serde_json::Value>(err_text)
@@ -287,7 +287,7 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
                 user_metadata,
                 key_prefix,
                 user_id_text,
-                environment
+                environment,
             )
             .await?
         }
@@ -354,7 +354,7 @@ pub async fn register_device(
         user_principal,
         Json(req),
         YRAL_METADATA_KEY_PREFIX,
-        &environment
+        &environment,
     )
     .await
     .inspect_err(|e| {
@@ -377,7 +377,7 @@ pub async fn register_device_impl<
     user_principal: P,
     req: Json<Req>,
     key_prefix: &str,
-    environment: &str
+    environment: &str,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
     let request_data = req.0;
     let registration_token_obj = request_data.registration_token();
@@ -499,7 +499,7 @@ pub async fn register_device_impl<
                             &mut user_metadata,
                             key_prefix,
                             &user_id_text,
-                            environment
+                            environment,
                         )
                         .await?,
                         false,
@@ -569,7 +569,7 @@ pub async fn unregister_device(
         user_principal,
         Json(req),
         YRAL_METADATA_KEY_PREFIX,
-        environment
+        environment,
     )
     .await
 }

@@ -93,10 +93,7 @@ impl Firebase {
         let response = client
             .get(&url)
             .header("Authorization", format!("Bearer {}", firebase_token))
-            .header(
-                "project_id",
-                &self.sender_id,
-            )
+            .header("project_id", &self.sender_id)
             .header("access_token_auth", "true")
             .header("Content-Type", "application/json")
             .send()
@@ -164,10 +161,7 @@ impl Firebase {
         let response = client
             .post(url)
             .header("Authorization", format!("Bearer {}", firebase_token))
-            .header(
-                "project_id",
-                &self.sender_id,
-            )
+            .header("project_id", &self.sender_id)
             .header("access_token_auth", "true")
             .json(&body)
             .send()
@@ -236,7 +230,7 @@ impl Firebase {
         }: SendNotificationReq,
     ) -> Result<()> {
         let client = Client::new();
-        
+
         log::debug!(
             "[send_message_to_group] Using project_id: {}, sender_id: {}",
             self.project_id,
