@@ -237,7 +237,7 @@ impl Firebase {
 
         let url = format!(
             "https://fcm.googleapis.com/v1/projects/{}/messages:send",
-            &self.project_id.clone()
+            self.project_id.clone()
         );
 
         log::info!(
