@@ -583,24 +583,24 @@ pub async fn unregister_device(
 
     if environment == "production" {
         unregister_device_impl(
-        &state.firebase,
-        &state.dragonfly_redis_store,
-        user_principal,
-        Json(req),
-        YRAL_METADATA_KEY_PREFIX,
-        environment,
-    )
-    .await
+            &state.firebase,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            environment,
+        )
+        .await
     } else {
         unregister_device_impl(
-        &state.firebase_staging,
-        &state.dragonfly_redis_store,
-        user_principal,
-        Json(req),
-        YRAL_METADATA_KEY_PREFIX,
-        environment,
-    )
-    .await
+            &state.firebase_staging,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            environment,
+        )
+        .await
     }
 }
 
