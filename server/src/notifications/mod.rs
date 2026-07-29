@@ -287,19 +287,8 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
 pub async fn register_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
-    headers: HeaderMap,
     Json(req): Json<RegisterDeviceReq>,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
-    let token = headers
-        .get("Authorization")
-        .ok_or(Error::AuthTokenMissing)?
-        .to_str()
-        .map_err(|_| Error::AuthTokenInvalid)?;
-    let token = token.trim_start_matches("Bearer ");
-
-    // Verify JWT token
-    crate::auth::verify_token(token, &state.jwt_details)?;
-
     let principal = user_principal;
 
     crate::sentry_utils::add_user_context(principal, None);
@@ -507,19 +496,8 @@ pub async fn register_device_impl<
 pub async fn unregister_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
-    headers: HeaderMap,
     Json(req): Json<UnregisterDeviceReq>,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
-    let token = headers
-        .get("Authorization")
-        .ok_or(Error::AuthTokenMissing)?
-        .to_str()
-        .map_err(|_| Error::AuthTokenInvalid)?;
-    let token = token.trim_start_matches("Bearer ");
-
-    // Verify JWT token
-    crate::auth::verify_token(token, &state.jwt_details)?;
-
     unregister_device_impl(
         &state.firebase,
         &state.dragonfly_redis_store,
