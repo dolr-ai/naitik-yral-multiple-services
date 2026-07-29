@@ -337,22 +337,49 @@ pub async fn register_device(
 
     let environment = req.environment.clone();
 
-    register_device_impl(
-        &state.firebase,
-        &state.dragonfly_redis_store,
-        user_principal,
-        Json(req),
-        YRAL_METADATA_KEY_PREFIX,
-        &environment,
-    )
-    .await
-    .inspect_err(|e| {
-        crate::sentry_utils::capture_api_error(
-            e,
-            "/notifications/{user_principal}",
-            Some(&principal.to_text()),
+    if environment == "production" {
+        log::info!(
+            "Registering device for user {} in production environment",
+            principal
         );
-    })
+        register_device_impl(
+            &state.firebase,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            &environment,
+        )
+        .await
+        .inspect_err(|e| {
+            crate::sentry_utils::capture_api_error(
+                e,
+                "/notifications/{user_principal}",
+                Some(&principal.to_text()),
+            );
+        })
+    } else {
+        log::info!(
+            "Registering device for user {} in staging environment",
+            principal
+        );
+        register_device_impl(
+            &state.firebase_staging,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            &environment,
+        )
+        .await
+        .inspect_err(|e| {
+            crate::sentry_utils::capture_api_error(
+                e,
+                "/notifications/{user_principal}",
+                Some(&principal.to_text()),
+            );
+        })
+    }
 }
 
 pub async fn register_device_impl<
@@ -380,22 +407,35 @@ pub async fn register_device_impl<
         Err(_) => return Ok(Json(Err(ApiError::MetadataNotFound))),
     };
 
-    let original_key = user_metadata
-        .notification_key
-        .as_ref()
-        .map(|nk| nk.key.clone());
+    let (notification_key, original_key) = if environment == "production" {
+        (
+            user_metadata.notification_key.clone(),
+            user_metadata
+                .notification_key
+                .as_ref()
+                .map(|nk| nk.key.clone()),
+        )
+    } else {
+        (
+            user_metadata.staging_notification_key.clone(),
+            user_metadata
+                .staging_notification_key
+                .as_ref()
+                .map(|nk| nk.key.clone()),
+        )
+    };
     let notification_key_name =
         firebase_utils::get_notification_key_name_from_principal(&user_id_text);
     let token = registration_token_obj.token.clone();
 
     // Register device with FCM
-    let (notification_key_from_firebase, is_create) = match &user_metadata.notification_key {
+    let (notification_key_from_firebase, is_create) = match notification_key {
         Some(existing_key) => {
             // Try to add to existing group
             match add_device_to_existing_group(
                 fcm_service,
                 &notification_key_name,
-                existing_key,
+                &existing_key,
                 &token,
             )
             .await
@@ -541,7 +581,8 @@ pub async fn unregister_device(
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
     let environment = req.environment.clone();
 
-    unregister_device_impl(
+    if environment == "production" {
+        unregister_device_impl(
         &state.firebase,
         &state.dragonfly_redis_store,
         user_principal,
@@ -550,6 +591,17 @@ pub async fn unregister_device(
         environment,
     )
     .await
+    } else {
+        unregister_device_impl(
+        &state.firebase_staging,
+        &state.dragonfly_redis_store,
+        user_principal,
+        Json(req),
+        YRAL_METADATA_KEY_PREFIX,
+        environment,
+    )
+    .await
+    }
 }
 
 pub async fn unregister_device_impl<
@@ -563,7 +615,7 @@ pub async fn unregister_device_impl<
     user_principal: P,
     req: Json<Req>,
     key_prefix: &str,
-    _environment: String,
+    environment: String,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
     let request_data = req.0;
     let registration_token_obj = request_data.registration_token();
@@ -580,7 +632,12 @@ pub async fn unregister_device_impl<
     let notification_key_name =
         firebase_utils::get_notification_key_name_from_principal(&user_id_text);
 
-    let Some(user_notification_key_info) = &user_metadata.notification_key else {
+    let user_notification_key_info = if environment == "production" {
+        user_metadata.notification_key.as_ref()
+    } else {
+        user_metadata.staging_notification_key.as_ref()
+    };
+    let Some(user_notification_key_info) = user_notification_key_info else {
         return Ok(Json(Err(ApiError::NotificationKeyNotFound)));
     };
 
@@ -622,7 +679,12 @@ pub async fn unregister_device_impl<
     }
 
     // Remove from Redis metadata
-    if let Some(nk_meta) = user_metadata.notification_key.as_mut() {
+    let nk_meta_to_update = if environment == "production" {
+        user_metadata.notification_key.as_mut()
+    } else {
+        user_metadata.staging_notification_key.as_mut()
+    };
+    if let Some(nk_meta) = nk_meta_to_update {
         nk_meta
             .registration_tokens
             .retain(|token| token.token != registration_token_obj.token);
