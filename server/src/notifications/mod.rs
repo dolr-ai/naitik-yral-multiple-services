@@ -99,29 +99,52 @@ fn serialize_fcm_request<T: Serialize>(request: &T) -> Result<serde_json::Value>
 
 /// Updates notification key metadata with new registration token
 fn update_notification_key_metadata(
+    environment: &str,
     user_metadata: &mut UserMetadata,
     notification_key_from_firebase: String,
     registration_token: DeviceRegistrationToken,
     is_create_operation: bool,
     original_key: Option<&String>,
 ) {
-    match user_metadata.notification_key.as_mut() {
-        Some(meta) => {
-            // Clear tokens if key changed or is newly created
-            if is_create_operation || Some(&notification_key_from_firebase) != original_key {
-                meta.registration_tokens.clear();
+    if environment == "production" {
+        match user_metadata.notification_key.as_mut() {
+            Some(meta) => {
+                // Clear tokens if key changed or is newly created
+                if is_create_operation || Some(&notification_key_from_firebase) != original_key {
+                    meta.registration_tokens.clear();
+                }
+                meta.key = notification_key_from_firebase;
+                // Remove duplicate token if exists, then add
+                meta.registration_tokens
+                    .retain(|token| token.token != registration_token.token);
+                meta.registration_tokens.push(registration_token);
             }
-            meta.key = notification_key_from_firebase;
-            // Remove duplicate token if exists, then add
-            meta.registration_tokens
-                .retain(|token| token.token != registration_token.token);
-            meta.registration_tokens.push(registration_token);
+            None => {
+                user_metadata.notification_key = Some(NotificationKey {
+                    key: notification_key_from_firebase,
+                    registration_tokens: vec![registration_token],
+                });
+            }
         }
-        None => {
-            user_metadata.notification_key = Some(NotificationKey {
-                key: notification_key_from_firebase,
-                registration_tokens: vec![registration_token],
-            });
+    } else {
+        match user_metadata.staging_notification_key.as_mut() {
+            Some(meta) => {
+                // Clear tokens if key changed or is newly created
+                if is_create_operation || Some(&notification_key_from_firebase) != original_key {
+                    meta.registration_tokens.clear();
+                }
+                meta.key = notification_key_from_firebase;
+                // Remove duplicate token if exists, then add
+                meta.registration_tokens
+                    .retain(|token| token.token != registration_token.token);
+                meta.registration_tokens.push(registration_token);
+            }
+            None => {
+                user_metadata.staging_notification_key = Some(NotificationKey {
+                    key: notification_key_from_firebase,
+                    registration_tokens: vec![registration_token],
+                });
+            }
         }
     }
 }
@@ -186,6 +209,7 @@ async fn recover_notification_key<F: FcmService, M: UserMetadataStore>(
     user_metadata: &mut UserMetadata,
     key_prefix: &str,
     user_id_text: &str,
+    environment: &str,
 ) -> Result<String> {
     // Try to extract from error response first, otherwise GET from FCM
     let fetched_key = fcm_service
@@ -198,15 +222,29 @@ async fn recover_notification_key<F: FcmService, M: UserMetadataStore>(
     );
 
     // Update user metadata with the recovered key
-    match user_metadata.notification_key.as_mut() {
-        Some(nk) => {
-            nk.key = fetched_key.clone();
+    if environment == "production" {
+        match user_metadata.notification_key.as_mut() {
+            Some(nk) => {
+                nk.key = fetched_key.clone();
+            }
+            None => {
+                user_metadata.notification_key = Some(NotificationKey {
+                    key: fetched_key.clone(),
+                    registration_tokens: vec![],
+                });
+            }
         }
-        None => {
-            user_metadata.notification_key = Some(NotificationKey {
-                key: fetched_key.clone(),
-                registration_tokens: vec![],
-            });
+    } else {
+        match user_metadata.staging_notification_key.as_mut() {
+            Some(nk) => {
+                nk.key = fetched_key.clone();
+            }
+            None => {
+                user_metadata.staging_notification_key = Some(NotificationKey {
+                    key: fetched_key.clone(),
+                    registration_tokens: vec![],
+                });
+            }
         }
     }
     store
@@ -227,6 +265,7 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
     user_metadata: &mut UserMetadata,
     key_prefix: &str,
     user_id_text: &str,
+    environment: &str,
 ) -> Result<String> {
     // Try to extract notification_key from the error response JSON
     let existing_key = serde_json::from_str::<serde_json::Value>(err_text)
@@ -248,6 +287,7 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
                 user_metadata,
                 key_prefix,
                 user_id_text,
+                environment,
             )
             .await?
         }
@@ -287,19 +327,8 @@ async fn handle_existing_group_error<F: FcmService, M: UserMetadataStore>(
 pub async fn register_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
-    headers: HeaderMap,
     Json(req): Json<RegisterDeviceReq>,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
-    let token = headers
-        .get("Authorization")
-        .ok_or(Error::AuthTokenMissing)?
-        .to_str()
-        .map_err(|_| Error::AuthTokenInvalid)?;
-    let token = token.trim_start_matches("Bearer ");
-
-    // Verify JWT token
-    crate::auth::verify_token(token, &state.jwt_details)?;
-
     let principal = user_principal;
 
     crate::sentry_utils::add_user_context(principal, None);
@@ -309,21 +338,51 @@ pub async fn register_device(
         sentry::Level::Info,
     );
 
-    register_device_impl(
-        &state.firebase,
-        &state.dragonfly_redis_store,
-        user_principal,
-        Json(req),
-        YRAL_METADATA_KEY_PREFIX,
-    )
-    .await
-    .inspect_err(|e| {
-        crate::sentry_utils::capture_api_error(
-            e,
-            "/notifications/{user_principal}",
-            Some(&principal.to_text()),
+    let environment = req.environment.clone();
+
+    if environment == "production" {
+        log::info!(
+            "Registering device for user {} in production environment",
+            principal
         );
-    })
+        register_device_impl(
+            &state.firebase,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            &environment,
+        )
+        .await
+        .inspect_err(|e| {
+            crate::sentry_utils::capture_api_error(
+                e,
+                "/notifications/{user_principal}",
+                Some(&principal.to_text()),
+            );
+        })
+    } else {
+        log::info!(
+            "Registering device for user {} in staging environment",
+            principal
+        );
+        register_device_impl(
+            &state.firebase_staging,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            &environment,
+        )
+        .await
+        .inspect_err(|e| {
+            crate::sentry_utils::capture_api_error(
+                e,
+                "/notifications/{user_principal}",
+                Some(&principal.to_text()),
+            );
+        })
+    }
 }
 
 pub async fn register_device_impl<
@@ -337,6 +396,7 @@ pub async fn register_device_impl<
     user_principal: P,
     req: Json<Req>,
     key_prefix: &str,
+    environment: &str,
 ) -> Result<Json<ApiResult<RegisterDeviceRes>>> {
     let request_data = req.0;
     let registration_token_obj = request_data.registration_token();
@@ -350,22 +410,35 @@ pub async fn register_device_impl<
         Err(_) => return Ok(Json(Err(ApiError::MetadataNotFound))),
     };
 
-    let original_key = user_metadata
-        .notification_key
-        .as_ref()
-        .map(|nk| nk.key.clone());
+    let (notification_key, original_key) = if environment == "production" {
+        (
+            user_metadata.notification_key.clone(),
+            user_metadata
+                .notification_key
+                .as_ref()
+                .map(|nk| nk.key.clone()),
+        )
+    } else {
+        (
+            user_metadata.staging_notification_key.clone(),
+            user_metadata
+                .staging_notification_key
+                .as_ref()
+                .map(|nk| nk.key.clone()),
+        )
+    };
     let notification_key_name =
         firebase_utils::get_notification_key_name_from_principal(&user_id_text);
     let token = registration_token_obj.token.clone();
 
     // Register device with FCM
-    let (notification_key_from_firebase, is_create) = match &user_metadata.notification_key {
+    let (notification_key_from_firebase, is_create) = match notification_key {
         Some(existing_key) => {
             // Try to add to existing group
             match add_device_to_existing_group(
                 fcm_service,
                 &notification_key_name,
-                existing_key,
+                &existing_key,
                 &token,
             )
             .await
@@ -396,6 +469,7 @@ pub async fn register_device_impl<
                         &mut user_metadata,
                         key_prefix,
                         &user_id_text,
+                        environment,
                     )
                     .await;
 
@@ -457,6 +531,7 @@ pub async fn register_device_impl<
                             &mut user_metadata,
                             key_prefix,
                             &user_id_text,
+                            environment,
                         )
                         .await?,
                         false,
@@ -469,6 +544,7 @@ pub async fn register_device_impl<
 
     // Update local metadata
     update_notification_key_metadata(
+        environment,
         &mut user_metadata,
         notification_key_from_firebase,
         registration_token_obj,
@@ -507,27 +583,31 @@ pub async fn register_device_impl<
 pub async fn unregister_device(
     State(state): State<Arc<AppState>>,
     Path(user_principal): Path<Principal>,
-    headers: HeaderMap,
     Json(req): Json<UnregisterDeviceReq>,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
-    let token = headers
-        .get("Authorization")
-        .ok_or(Error::AuthTokenMissing)?
-        .to_str()
-        .map_err(|_| Error::AuthTokenInvalid)?;
-    let token = token.trim_start_matches("Bearer ");
+    let environment = req.environment.clone();
 
-    // Verify JWT token
-    crate::auth::verify_token(token, &state.jwt_details)?;
-
-    unregister_device_impl(
-        &state.firebase,
-        &state.dragonfly_redis_store,
-        user_principal,
-        Json(req),
-        YRAL_METADATA_KEY_PREFIX,
-    )
-    .await
+    if environment == "production" {
+        unregister_device_impl(
+            &state.firebase,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            environment,
+        )
+        .await
+    } else {
+        unregister_device_impl(
+            &state.firebase_staging,
+            &state.dragonfly_redis_store,
+            user_principal,
+            Json(req),
+            YRAL_METADATA_KEY_PREFIX,
+            environment,
+        )
+        .await
+    }
 }
 
 pub async fn unregister_device_impl<
@@ -541,6 +621,7 @@ pub async fn unregister_device_impl<
     user_principal: P,
     req: Json<Req>,
     key_prefix: &str,
+    environment: String,
 ) -> Result<Json<ApiResult<UnregisterDeviceRes>>> {
     let request_data = req.0;
     let registration_token_obj = request_data.registration_token();
@@ -557,7 +638,12 @@ pub async fn unregister_device_impl<
     let notification_key_name =
         firebase_utils::get_notification_key_name_from_principal(&user_id_text);
 
-    let Some(user_notification_key_info) = &user_metadata.notification_key else {
+    let user_notification_key_info = if environment == "production" {
+        user_metadata.notification_key.as_ref()
+    } else {
+        user_metadata.staging_notification_key.as_ref()
+    };
+    let Some(user_notification_key_info) = user_notification_key_info else {
         return Ok(Json(Err(ApiError::NotificationKeyNotFound)));
     };
 
@@ -599,7 +685,12 @@ pub async fn unregister_device_impl<
     }
 
     // Remove from Redis metadata
-    if let Some(nk_meta) = user_metadata.notification_key.as_mut() {
+    let nk_meta_to_update = if environment == "production" {
+        user_metadata.notification_key.as_mut()
+    } else {
+        user_metadata.staging_notification_key.as_mut()
+    };
+    if let Some(nk_meta) = nk_meta_to_update {
         nk_meta
             .registration_tokens
             .retain(|token| token.token != registration_token_obj.token);
@@ -665,11 +756,12 @@ pub async fn send_notification(
         sentry::Level::Info,
     );
 
-    send_notification_impl(
+    send_notification_to_all_environments(
         &state.firebase,
+        &state.firebase_staging,
         &state.dragonfly_redis_store,
         user_principal,
-        Json(req),
+        Json(req.clone()),
         YRAL_METADATA_KEY_PREFIX,
     )
     .await
@@ -682,14 +774,60 @@ pub async fn send_notification(
     })
 }
 
-pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: UserPrincipal>(
-    fcm_service: &F,
+pub async fn send_notification_to_all_environments<
+    F: FcmService,
+    M: UserMetadataStore,
+    P: UserPrincipal,
+>(
+    fcm_prod: &F,
+    fcm_staging: &F,
     store: &M,
     user_principal: P,
     req: Json<SendNotificationReq>,
     key_prefix: &str,
 ) -> Result<Json<ApiResult<SendNotificationRes>>> {
-    let user_id_text = user_principal.to_text();
+    let user_principal_text = user_principal.to_text();
+    let prod_result = send_notification_prod_impl(
+        fcm_prod,
+        store,
+        user_principal_text.clone(),
+        req.clone(),
+        key_prefix,
+    )
+    .await;
+
+    let staging_result =
+        send_notification_staging_impl(fcm_staging, store, user_principal_text, req, key_prefix)
+            .await;
+
+    // Log results for both environments
+    match prod_result {
+        Ok(_) => log::info!("Successfully sent notification in production environment"),
+        Err(e) => log::error!(
+            "Failed to send notification in production environment: {:?}",
+            e
+        ),
+    }
+
+    match staging_result {
+        Ok(_) => log::info!("Successfully sent notification in staging environment"),
+        Err(e) => log::error!(
+            "Failed to send notification in staging environment: {:?}",
+            e
+        ),
+    }
+
+    Ok(Json(Ok(())))
+}
+
+pub async fn send_notification_prod_impl<F: FcmService, M: UserMetadataStore>(
+    fcm_service: &F,
+    store: &M,
+    user_principal: String,
+    req: Json<SendNotificationReq>,
+    key_prefix: &str,
+) -> Result<Json<ApiResult<SendNotificationRes>>> {
+    let user_id_text = user_principal.clone();
 
     // Fetch user metadata
     let mut user_metadata = match store.fetch_user_metadata(key_prefix, &user_id_text).await {
@@ -721,6 +859,71 @@ pub async fn send_notification_impl<F: FcmService, M: UserMetadataStore, P: User
             );
             // Clear stale notification key so user can re-register
             user_metadata.notification_key = None;
+            if let Err(save_err) = store
+                .save_user_metadata(key_prefix, &user_id_text, &user_metadata)
+                .await
+            {
+                log::error!(
+                    "Failed to clear stale notification_key for user {}: {:?}",
+                    user_id_text,
+                    save_err
+                );
+            }
+            Ok(Json(Err(ApiError::NotificationKeyNotFound)))
+        }
+        Err(e) => Err(e),
+    }
+}
+
+pub async fn send_notification_staging_impl<F: FcmService, M: UserMetadataStore>(
+    fcm_service: &F,
+    store: &M,
+    user_principal: String,
+    req: Json<SendNotificationReq>,
+    key_prefix: &str,
+) -> Result<Json<ApiResult<SendNotificationRes>>> {
+    let user_id_text = user_principal.clone();
+
+    // Fetch user metadata
+    let mut user_metadata = match store.fetch_user_metadata(key_prefix, &user_id_text).await {
+        Ok(metadata) => metadata,
+        Err(_) => return Ok(Json(Err(ApiError::MetadataNotFound))),
+    };
+
+    // Get notification key
+    let Some(notification_key) = user_metadata.staging_notification_key.clone() else {
+        log::warn!("Notification key not found for user: {}", user_id_text);
+        return Ok(Json(Err(ApiError::NotificationKeyNotFound)));
+    };
+
+    log::info!(
+        "Attempting to send staging push to group key '{}' with payload: {:?}",
+        notification_key.key,
+        req.0
+    );
+
+    // Send notification
+    match fcm_service
+        .send_message_to_group(notification_key.clone(), req.0)
+        .await
+    {
+        Ok(()) => {
+            log::info!(
+                "Successfully dispatched staging notification for user {} to group {}",
+                user_id_text,
+                notification_key.key
+            );
+            Ok(Json(Ok(())))
+        }
+        Err(Error::FirebaseApiErr(ref err_text))
+            if err_text.contains("UNREGISTERED") || err_text.contains("not found") =>
+        {
+            log::warn!(
+                "Notification key is stale for user: {}. Clearing notification_key from metadata. Error: {}",
+                user_id_text, err_text
+            );
+            // Clear stale notification key so user can re-register
+            user_metadata.staging_notification_key = None;
             if let Err(save_err) = store
                 .save_user_metadata(key_prefix, &user_id_text, &user_metadata)
                 .await

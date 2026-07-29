@@ -44,6 +44,7 @@ impl<const A: bool> MultiServiceClient<A> {
         &self,
         identity: &impl Identity,
         registration_token: DeviceRegistrationToken,
+        environment: String,
     ) -> Result<RegisterDeviceRes> {
         let signature = sign_message(
             identity,
@@ -69,6 +70,7 @@ impl<const A: bool> MultiServiceClient<A> {
             .json(&RegisterDeviceReq {
                 registration_token,
                 signature,
+                environment,
             })
             .send()
             .await?;
@@ -81,6 +83,7 @@ impl<const A: bool> MultiServiceClient<A> {
         &self,
         identity: &impl Identity,
         registration_token: DeviceRegistrationToken,
+        environment: String,
     ) -> Result<UnregisterDeviceRes> {
         let signature = sign_message(
             identity,
@@ -105,6 +108,7 @@ impl<const A: bool> MultiServiceClient<A> {
             .json(&UnregisterDeviceReq {
                 registration_token,
                 signature,
+                environment,
             })
             .send()
             .await?;
